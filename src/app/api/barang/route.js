@@ -4,8 +4,7 @@ import { db } from '@/lib/db';
 export async function GET() {
   try {
     const res = await db.execute(`
-      SELECT b.id, b.kode_sku, b.nama_barang, b.harga_beli, b.harga_jual, b.stok, b.keterangan,
-             k.nama_kategori
+      SELECT b.id, b.kode_sku, b.nama_barang, b.harga_beli, b.harga_jual, b.stok, b.keterangan, k.nama_kategori
       FROM barang b
       LEFT JOIN kategori k ON b.kategori_id = k.id
       ORDER BY b.dibuat_pada DESC
