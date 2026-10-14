@@ -492,25 +492,37 @@
     if (currentUser) showApp();
 
     // Handle Login
+    // Handle Login
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: document.getElementById('logUsername').value, password: document.getElementById('logPassword').value })
-      });
-      const data = await res.json();
-      if (res.ok && data.user) {
-        localStorage.setItem('user', JSON.stringify(data.user));
-        currentUser = data.user;
-        showApp();
-      } else { alert(data.message || 'Login gagal'); }
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            username: document.getElementById('logUsername').value, 
+            password: document.getElementById('logPassword').value 
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+          currentUser = data.user;
+          showApp();
+        } else { 
+          alert(data.message || 'Login gagal, periksa username/password'); 
+        }
+      } catch (err) {
+        alert('Gagal terhubung ke server login: ' + err.message);
+      }
     });
 
     function showApp() {
       document.getElementById('viewLogin').classList.add('hidden');
       document.getElementById('viewApp').classList.remove('hidden');
-      document.getElementById('userInfo').innerText = currentUser.nama;
+      document.getElementById('userInfo').innerText = currentUser.nama_lengkap || currentUser.nama || currentUser.username;
+      
+      // Load data kategori, riwayat, dan stok (tanpa load seluruh barang)
       loadAllData();
     }
 
