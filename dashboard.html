@@ -8,15 +8,15 @@
 </head>
 <body class="bg-slate-100 min-h-screen">
   <nav class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md">
-  <h1 class="text-xl font-bold">Aplikasi Kasir POS</h1>
-  <div class="flex items-center gap-2">
-    <a href="/users.html" class="bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg text-sm">Kelola User</a>
-    <a href="/barang.html" class="bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg text-sm">Kelola Barang</a>
-    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg text-sm">Logout</button>
-  </div>
-</nav>
-
-  
+    <h1 class="text-xl font-bold">Aplikasi Kasir POS</h1>
+    <div class="flex items-center gap-2 text-sm">
+      <span id="userInfo" class="bg-blue-700 px-3 py-1.5 rounded-lg"></span>
+      <a href="/barang.html" class="bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg">Kelola Barang</a>
+      <a href="/kategori.html" class="bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg">Kelola Kategori</a>
+      <a href="/users.html" class="bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg">Kelola User</a>
+      <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg">Logout</button>
+    </div>
+  </nav>
 
   <div class="p-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
     <!-- Daftar Produk -->
@@ -28,7 +28,7 @@
     <!-- Keranjang Belanja -->
     <div class="bg-white p-6 rounded-xl shadow-sm flex flex-col justify-between">
       <div>
-        <h2 class="text-lg font-bold mb-4">Keranjang</h2>
+        <h2 class="text-lg font-bold mb-4">Keranjang Belanja</h2>
         <div id="keranjangList" class="space-y-3 max-h-80 overflow-y-auto mb-4"></div>
       </div>
       <div class="border-t pt-4 space-y-3">
@@ -50,17 +50,22 @@
   </div>
 
   <script>
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) window.location.href = '/index.html';
+    document.getElementById('userInfo').innerText = `${user.nama} (${user.role})`;
+
     let produkList = [];
     let keranjang = [];
 
     async function loadProduk() {
-      const res = await fetch('/api/produk');
+      const res = await fetch('/api/barang');
       produkList = await res.json();
       const grid = document.getElementById('produkGrid');
       grid.innerHTML = produkList.map(p => `
-        <div onclick="tambahKeranjang(${p.id})" class="border p-4 rounded-lg cursor-pointer hover:border-blue-500 transition bg-slate-50">
-          <p class="font-bold">${p.nama_barang}</p>
-          <p class="text-sm text-slate-500">Stok: ${p.stok}</p>
+        <div onclick="tambahKeranjang('${p.id}')" class="border p-4 rounded-lg cursor-pointer hover:border-blue-500 transition bg-slate-50">
+          <p class="font-bold text-slate-800">${p.nama_barang}</p>
+          <p class="text-xs text-slate-500">SKU: ${p.kode_sku}</p>
+          <p class="text-sm text-slate-600 mt-1">Stok: ${p.stok}</p>
           <p class="text-blue-600 font-bold mt-2">Rp ${p.harga_jual.toLocaleString()}</p>
         </div>
       `).join('');
@@ -106,21 +111,28 @@
       const bayar = Number(document.getElementById('inputBayar').value);
       if (bayar < total) return alert('Uang pembayaran kurang!');
 
-      const no_faktur = 'INV-' + Date.now();
+      const nomor_faktur = 'INV-' + Date.now();
       const res = await fetch('/api/transaksi', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          no_faktur, total_harga: total, bayar, kembali: bayar - total, items: keranjang
+          nomor_faktur,
+          pengguna_id: user.id,
+          metode_pembayaran: 'tunai',
+          jumlah_bayar: bayar,
+          items: keranjang
         })
       });
 
+      const data = await res.json();
       if (res.ok) {
-        alert('Transaksi Berhasil!');
+        alert('Transaksi Berhasil! No Faktur: ' + data.nomor_faktur);
         keranjang = [];
         document.getElementById('inputBayar').value = '';
         renderKeranjang();
         loadProduk();
+      } else {
+        alert(data.message);
       }
     }
 
