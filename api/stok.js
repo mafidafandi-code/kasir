@@ -1,7 +1,6 @@
 import { db } from '../lib/turso.js';
 
 export default async function handler(req, res) {
-  // Ambil Riwayat Stok
   if (req.method === 'GET') {
     try {
       const result = await db.execute(`
@@ -17,16 +16,30 @@ export default async function handler(req, res) {
     }
   }
 
-  // Tambah Stok Masuk / Opname
   if (req.method === 'POST') {
     const { barang_id, pengguna_id, jumlah_masuk, harga_beli_per_unit, catatan } = req.body;
-    const id = 'stk_' + Date.now();
+
+    if (!barang_id) {
+      return res.status(400).json({ message: 'Barang tidak valid atau belum dipilih dari daftar!' });
+    }
 
     try {
-      // 1. Simpan ke tabel riwayat_stok
+      // 1. Validasi apakah barang benar-benar ada di database
+      const cekBarang = await db.execute({
+        sql: `SELECT id FROM barang WHERE id = ?`,
+        args: [barang_id]
+      });
+
+      if (cekBarang.rows.length === 0) {
+        return res.status(400).json({ message: 'Gagal: Barang tersebut tidak ditemukan di data master!' });
+      }
+
+      const id = 'stk_' + Date.now();
+
+      // 2. Simpan ke riwayat_stok
       await db.execute({
         sql: `INSERT INTO riwayat_stok (id, barang_id, pengguna_id, jumlah_masuk, harga_beli_per_unit, catatan, dibuat_pada) 
-              VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
+              VALUES (?, ?, ?, ?, ?, ?, datetime('now', '+7 hours'))`,
         args: [
           id, 
           barang_id, 
@@ -37,13 +50,13 @@ export default async function handler(req, res) {
         ]
       });
 
-      // 2. Otomatis tambahkan stok ke tabel barang utama
+      // 3. Update stok barang
       await db.execute({
         sql: `UPDATE barang SET stok = stok + ? WHERE id = ?`,
         args: [Number(jumlah_masuk), barang_id]
       });
 
-      return res.status(201).json({ message: 'Riwayat stok dan pembaruan berhasil disimpan' });
+      return res.status(201).json({ message: 'Stok opname berhasil disimpan' });
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }
