@@ -41,17 +41,17 @@
 
   <script>
     async function loadUsers() {
-      const res = await fetch('/api/users');
-      const data = await res.json();
-      document.getElementById('tabelUser').innerHTML = data.map(u => `
-        <tr class="border-b">
-          <td class="p-2">${u.id}</td>
-          <td class="p-2 font-semibold">${u.username}</td>
-          <td class="p-2">${u.nama}</td>
-          <td class="p-2"><span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">${u.role}</span></td>
-        </tr>
-      `).join('');
-    }
+  const res = await fetch('/api/users');
+  const data = await res.json();
+  document.getElementById('tabelUser').innerHTML = data.map(u => `
+    <tr class="border-b">
+      <td class="p-2 text-xs text-slate-500">${u.id}</td>
+      <td class="p-2 font-semibold">${u.username}</td>
+      <td class="p-2">${u.nama_lengkap}</td>
+      <td class="p-2"><span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">${u.peran}</span></td>
+    </tr>
+  `).join('');
+}
 
     document.getElementById('formUser').addEventListener('submit', async (e) => {
       e.preventDefault();
