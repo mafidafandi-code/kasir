@@ -7,28 +7,34 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 min-h-screen p-6">
-  <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-sm">
+  <div class="max-w-6xl mx-auto bg-white p-6 rounded-xl shadow-sm">
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-xl font-bold">Kelola Stok Barang</h1>
+      <h1 class="text-xl font-bold">Kelola Stok & Barang</h1>
       <a href="/dashboard.html" class="text-blue-600 hover:underline">← Kembali ke Kasir</a>
     </div>
 
     <!-- Form Tambah Barang -->
-    <form id="formBarang" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      <input type="text" id="kode" placeholder="Kode Barang" required class="border p-2 rounded-lg">
-      <input type="text" id="nama" placeholder="Nama Barang" required class="border p-2 rounded-lg">
-      <input type="number" id="harga" placeholder="Harga Jual" required class="border p-2 rounded-lg">
-      <input type="number" id="stok" placeholder="Stok" required class="border p-2 rounded-lg">
-      <button type="submit" class="col-span-2 md:col-span-4 bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700">Simpan Barang</button>
+    <form id="formBarang" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 border-b pb-6">
+      <input type="text" id="kode_sku" placeholder="Kode SKU" required class="border p-2 rounded-lg outline-none">
+      <input type="text" id="nama_barang" placeholder="Nama Barang" required class="border p-2 rounded-lg outline-none">
+      <select id="kategori_id" class="border p-2 rounded-lg outline-none"></select>
+      <select id="sub_kategori_id" class="border p-2 rounded-lg outline-none"></select>
+      <input type="number" id="harga_beli" placeholder="Harga Beli" required class="border p-2 rounded-lg outline-none">
+      <input type="number" id="harga_jual" placeholder="Harga Jual" required class="border p-2 rounded-lg outline-none">
+      <input type="number" id="stok" placeholder="Stok Awal" required class="border p-2 rounded-lg outline-none">
+      <input type="text" id="keterangan" placeholder="Keterangan" class="border p-2 rounded-lg outline-none">
+      <button type="submit" class="col-span-2 md:col-span-4 bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700">Simpan Barang Baru</button>
     </form>
 
     <!-- Tabel Barang -->
-    <table class="w-full text-left border-collapse">
+    <table class="w-full text-left border-collapse text-sm">
       <thead>
         <tr class="border-b bg-slate-50">
-          <th class="p-2">Kode</th>
-          <th class="p-2">Nama</th>
-          <th class="p-2">Harga</th>
+          <th class="p-2">SKU</th>
+          <th class="p-2">Nama Barang</th>
+          <th class="p-2">Kategori</th>
+          <th class="p-2">Harga Beli</th>
+          <th class="p-2">Harga Jual</th>
           <th class="p-2">Stok</th>
         </tr>
       </thead>
@@ -37,15 +43,36 @@
   </div>
 
   <script>
+    let kategoriData = [];
+
+    async function init() {
+      // Ambil Kategori & Sub untuk dropdown
+      const katRes = await fetch('/api/kategori');
+      const katJson = await katRes.json();
+      kategoriData = katJson.kategori;
+
+      document.getElementById('kategori_id').innerHTML = `<option value="">Pilih Kategori</option>` + kategoriData.map(k => `
+        <option value="${k.id}">${k.nama_kategori}</option>
+      `).join('');
+
+      document.getElementById('sub_kategori_id').innerHTML = `<option value="">Pilih Sub-Kategori</option>` + katJson.sub_kategori.map(s => `
+        <option value="${s.id}">${s.nama_sub_kategori}</option>
+      `).join('');
+
+      loadBarang();
+    }
+
     async function loadBarang() {
-      const res = await fetch('/api/produk');
+      const res = await fetch('/api/barang');
       const data = await res.json();
       document.getElementById('tabelBarang').innerHTML = data.map(b => `
         <tr class="border-b">
-          <td class="p-2">${b.kode_barang}</td>
+          <td class="p-2 font-semibold">${b.kode_sku}</td>
           <td class="p-2">${b.nama_barang}</td>
-          <td class="p-2">Rp ${b.harga_jual.toLocaleString()}</td>
-          <td class="p-2">${b.stok}</td>
+          <td class="p-2 text-xs text-gray-500">${b.nama_kategori || '-'}</td>
+          <td class="p-2">Rp ${b.harga_beli.toLocaleString()}</td>
+          <td class="p-2 text-blue-600 font-bold">Rp ${b.harga_jual.toLocaleString()}</td>
+          <td class="p-2 font-semibold">${b.stok}</td>
         </tr>
       `).join('');
     }
@@ -53,25 +80,32 @@
     document.getElementById('formBarang').addEventListener('submit', async (e) => {
       e.preventDefault();
       const body = {
-        kode_barang: document.getElementById('kode').value,
-        nama_barang: document.getElementById('nama').value,
-        harga_jual: Number(document.getElementById('harga').value),
-        stok: Number(document.getElementById('stok').value)
+        kode_sku: document.getElementById('kode_sku').value,
+        nama_barang: document.getElementById('nama_barang').value,
+        kategori_id: document.getElementById('kategori_id').value,
+        sub_kategori_id: document.getElementById('sub_kategori_id').value,
+        harga_beli: Number(document.getElementById('harga_beli').value),
+        harga_jual: Number(document.getElementById('harga_jual').value),
+        stok: Number(document.getElementById('stok').value),
+        keterangan: document.getElementById('keterangan').value
       };
 
-      const res = await fetch('/api/produk', {
+      const res = await fetch('/api/barang', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
 
+      const data = await res.json();
       if (res.ok) {
         document.getElementById('formBarang').reset();
         loadBarang();
+      } else {
+        alert(data.message);
       }
     });
 
-    loadBarang();
+    init();
   </script>
 </body>
 </html>
