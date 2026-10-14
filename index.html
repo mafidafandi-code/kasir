@@ -322,6 +322,43 @@
     </div>
   </div>
 
+  <!-- ================= MODAL konfirm ================= -->
+<!-- ================= MODAL KONFIRMASI / PREVIEW SEBELUM PROSES ================= -->
+  <div id="modalKonfirmasi" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 space-y-4">
+      <div class="text-center border-b border-dashed pb-3">
+        <span class="bg-amber-50 text-amber-600 font-bold text-[10px] uppercase px-2 py-0.5 rounded-full border border-amber-200">Konfirmasi Pembayaran</span>
+        <h3 class="font-bold text-base text-slate-900 mt-2">Periksa Detail Belanja</h3>
+        <p class="text-[11px] text-slate-400">Transaksi belum dicatat sebelum dikonfirmasi</p>
+      </div>
+
+      <div class="space-y-1.5 text-xs border-b border-dashed pb-3">
+        <div class="flex justify-between"><span class="text-slate-500">No. Faktur:</span><span id="confFaktur" class="font-mono font-bold"></span></div>
+        <div class="flex justify-between"><span class="text-slate-500">Tanggal:</span><span id="confTanggal"></span></div>
+        <div class="flex justify-between"><span class="text-slate-500">Kasir:</span><span id="confKasir" class="font-semibold"></span></div>
+      </div>
+
+      <!-- Item List Preview -->
+      <div id="confItemList" class="space-y-1.5 max-h-40 overflow-y-auto border-b border-dashed pb-3 pr-1"></div>
+
+      <!-- Ringkasan Harga -->
+      <div class="space-y-1 text-xs">
+        <div class="flex justify-between text-sm font-bold text-slate-900"><span>Total Belanja:</span><span id="confTotal" class="text-indigo-600"></span></div>
+        <div class="flex justify-between text-slate-600"><span>Uang Bayar:</span><span id="confBayar"></span></div>
+        <div class="flex justify-between text-slate-600 font-semibold"><span>Uang Kembali:</span><span id="confKembali" class="text-emerald-600"></span></div>
+      </div>
+
+      <!-- Tombol Aksi Konfirmasi -->
+      <div class="flex gap-2 pt-2">
+        <button onclick="konfirmasiDanProses()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-semibold shadow-md transition">
+          Ya, Proses & Cetak Nota
+        </button>
+        <button onclick="closeModal('modalKonfirmasi')" class="px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl text-xs font-semibold transition">
+          Batal
+        </button>
+      </div>
+    </div>
+  </div>
   <!-- ================= MODAL STOK OPNAME ================= -->
   <div id="modalOpname" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
@@ -605,28 +642,92 @@
       }
     }
 
-    async function prosesBayar() {
+    let pendingTransaksiData = null; // Menyimpan data sementara sebelum dikonfirmasi
+
+    function prosesBayar() {
       if (!keranjang.length) return alert('Keranjang belanja kosong!');
       const total = keranjang.reduce((sum, i) => sum + (i.harga_jual * i.jumlah), 0);
       const bayar = Number(document.getElementById('inputBayar').value);
-      if (bayar < total) return alert('Uang bayar kurang!');
+      
+      if (bayar < total) {
+        return alert('Uang pembayaran kurang dari total belanja!');
+      }
 
       const nomorFaktur = 'INV-' + Date.now();
-      const res = await fetch('/api/transaksi', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nomor_faktur: nomorFaktur, pengguna_id: currentUser.id, jumlah_bayar: bayar, items: keranjang })
-      });
+      const kembalian = bayar - total;
 
-      if (res.ok) {
-        // Tampilkan modal nota cetak
-        tampilkanNota(nomorFaktur, new Date().toLocaleDateString('id-ID'), currentUser.nama, total, bayar, bayar - total, keranjang);
-        keranjang = [];
-        document.getElementById('inputBayar').value = '';
-        renderKeranjang();
-      } else {
-        const d = await res.json();
-        alert(d.message || 'Gagal memproses transaksi');
+      // 1. Simpan data ke variabel sementara (Belum dikirim ke API database)
+      pendingTransaksiData = {
+        nomor_faktur: nomorFaktur,
+        pengguna_id: currentUser.id,
+        jumlah_bayar: bayar,
+        kembalian: kembalian,
+        total_belanja: total,
+        tanggal: new Date().toLocaleDateString('id-ID'),
+        kasir: currentUser.nama,
+        items: [...keranjang]
+      };
+
+      // 2. Tampilkan Modal Preview / Konfirmasi Detail Belanja
+      document.getElementById('confFaktur').innerText = nomorFaktur;
+      document.getElementById('confTanggal').innerText = pendingTransaksiData.tanggal;
+      document.getElementById('confKasir').innerText = pendingTransaksiData.kasir;
+      document.getElementById('confTotal').innerText = 'Rp ' + total.toLocaleString();
+      document.getElementById('confBayar').innerText = 'Rp ' + bayar.toLocaleString();
+      document.getElementById('confKembali').innerText = 'Rp ' + kembalian.toLocaleString();
+      
+      document.getElementById('confItemList').innerHTML = pendingTransaksiData.items.map(i => `
+        <div class="flex justify-between text-xs">
+          <span>${i.nama_barang} (${i.jumlah}x)</span>
+          <span class="font-semibold">Rp ${(i.harga_jual * i.jumlah).toLocaleString()}</span>
+        </div>
+      `).join('');
+
+      openModal('modalKonfirmasi');
+    }
+
+    // 3. Eksekusi Nyata ke Database Hanya Saat Tombol Konfirmasi Ditekan
+    async function konfirmasiDanProses() {
+      if (!pendingTransaksiData) return;
+
+      try {
+        const res = await fetch('/api/transaksi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nomor_faktur: pendingTransaksiData.nomor_faktur,
+            pengguna_id: pendingTransaksiData.pengguna_id,
+            jumlah_bayar: pendingTransaksiData.jumlah_bayar,
+            items: pendingTransaksiData.items
+          })
+        });
+
+        if (res.ok) {
+          closeModal('modalKonfirmasi');
+          
+          // Pindahkan data ke modal cetak nota akhir
+          tampilkanNota(
+            pendingTransaksiData.nomor_faktur,
+            pendingTransaksiData.tanggal,
+            pendingTransaksiData.kasir,
+            pendingTransaksiData.total_belanja,
+            pendingTransaksiData.jumlah_bayar,
+            pendingTransaksiData.kembalian,
+            pendingTransaksiData.items
+          );
+
+          // Bersihkan keranjang
+          keranjang = [];
+          document.getElementById('inputBayar').value = '';
+          renderKeranjang();
+          loadProduk();
+          pendingTransaksiData = null;
+        } else {
+          const d = await res.json();
+          alert(d.message || 'Gagal memproses transaksi ke database');
+        }
+      } catch (err) {
+        alert('Kesalahan jaringan: ' + err.message);
       }
     }
 
