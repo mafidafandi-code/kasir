@@ -17,11 +17,11 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const { id, kode_sku, nama_barang, kategori_id, sub_kategori_id, harga_beli, harga_jual, stok } = req.body;
+    const { id, kode_sku, nama_barang, kategori_id, sub_kategori_id, harga_beli, harga_jual, stok, keterangan } = req.body;
     try {
       await db.execute({
-        sql: `INSERT INTO barang (id, kode_sku, nama_barang, kategori_id, sub_kategori_id, harga_beli, harga_jual, stok) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        args: [id, kode_sku, nama_barang, kategori_id || null, sub_kategori_id || null, harga_beli, harga_jual, stok]
+        sql: `INSERT INTO barang (id, kode_sku, nama_barang, kategori_id, sub_kategori_id, harga_beli, harga_jual, stok, keterangan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [id, kode_sku, nama_barang, kategori_id || null, sub_kategori_id || null, harga_beli, harga_jual, stok, keterangan || '']
       });
       return res.status(201).json({ message: 'Barang berhasil ditambahkan' });
     } catch (error) {
@@ -30,11 +30,11 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'PUT') {
-    const { id, kode_sku, nama_barang, kategori_id, sub_kategori_id, harga_beli, harga_jual, stok } = req.body;
+    const { id, kode_sku, nama_barang, kategori_id, sub_kategori_id, harga_beli, harga_jual, stok, keterangan } = req.body;
     try {
       await db.execute({
-        sql: `UPDATE barang SET kode_sku=?, nama_barang=?, kategori_id=?, sub_kategori_id=?, harga_beli=?, harga_jual=?, stok=? WHERE id=?`,
-        args: [kode_sku, nama_barang, kategori_id || null, sub_kategori_id || null, harga_beli, harga_jual, stok, id]
+        sql: `UPDATE barang SET kode_sku=?, nama_barang=?, kategori_id=?, sub_kategori_id=?, harga_beli=?, harga_jual=?, stok=?, keterangan=? WHERE id=?`,
+        args: [kode_sku, nama_barang, kategori_id || null, sub_kategori_id || null, harga_beli, harga_jual, stok, keterangan || '', id]
       });
       return res.status(200).json({ message: 'Barang berhasil diperbarui' });
     } catch (error) {
