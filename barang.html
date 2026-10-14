@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola Barang</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen p-6">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-sm">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-xl font-bold">Kelola Stok Barang</h1>
+      <a href="/dashboard.html" class="text-blue-600 hover:underline">← Kembali ke Kasir</a>
+    </div>
+
+    <!-- Form Tambah Barang -->
+    <form id="formBarang" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <input type="text" id="kode" placeholder="Kode Barang" required class="border p-2 rounded-lg">
+      <input type="text" id="nama" placeholder="Nama Barang" required class="border p-2 rounded-lg">
+      <input type="number" id="harga" placeholder="Harga Jual" required class="border p-2 rounded-lg">
+      <input type="number" id="stok" placeholder="Stok" required class="border p-2 rounded-lg">
+      <button type="submit" class="col-span-2 md:col-span-4 bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700">Simpan Barang</button>
+    </form>
+
+    <!-- Tabel Barang -->
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="border-b bg-slate-50">
+          <th class="p-2">Kode</th>
+          <th class="p-2">Nama</th>
+          <th class="p-2">Harga</th>
+          <th class="p-2">Stok</th>
+        </tr>
+      </thead>
+      <tbody id="tabelBarang"></tbody>
+    </table>
+  </div>
+
+  <script>
+    async function loadBarang() {
+      const res = await fetch('/api/produk');
+      const data = await res.json();
+      document.getElementById('tabelBarang').innerHTML = data.map(b => `
+        <tr class="border-b">
+          <td class="p-2">${b.kode_barang}</td>
+          <td class="p-2">${b.nama_barang}</td>
+          <td class="p-2">Rp ${b.harga_jual.toLocaleString()}</td>
+          <td class="p-2">${b.stok}</td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('formBarang').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = {
+        kode_barang: document.getElementById('kode').value,
+        nama_barang: document.getElementById('nama').value,
+        harga_jual: Number(document.getElementById('harga').value),
+        stok: Number(document.getElementById('stok').value)
+      };
+
+      const res = await fetch('/api/produk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (res.ok) {
+        document.getElementById('formBarang').reset();
+        loadBarang();
+      }
+    });
+
+    loadBarang();
+  </script>
+</body>
+</html>
