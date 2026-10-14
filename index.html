@@ -10,11 +10,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    /* Custom Scrollbar yang halus */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    @media print {
+      body * { visibility: hidden; }
+      #printArea, #printArea * { visibility: visible; }
+      #printArea { position: absolute; left: 0; top: 0; width: 100%; }
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
@@ -27,17 +32,17 @@
           POS
         </div>
         <h2 class="text-2xl font-bold text-slate-900">Selamat Datang</h2>
-        <p class="text-sm text-slate-500 mt-1">Silakan masuk ke akun kasir / admin Anda</p>
+        <p class="text-sm text-slate-500 mt-1">Masuk untuk mulai kasir & manajemen stok</p>
       </div>
 
       <form id="loginForm" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Username</label>
-          <input type="text" id="logUsername" required placeholder="Masukkan username" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-sm">
+          <input type="text" id="logUsername" required placeholder="Masukkan username" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition text-sm">
         </div>
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Password</label>
-          <input type="password" id="logPassword" required placeholder="••••••••" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-sm">
+          <input type="password" id="logPassword" required placeholder="••••••••" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition text-sm">
         </div>
         <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white py-3 rounded-xl transition font-semibold text-sm shadow-lg shadow-indigo-200">
           Masuk ke System
@@ -65,10 +70,12 @@
 
         <!-- Navigation Tabs -->
         <nav class="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-semibold text-slate-600">
-          <button onclick="switchTab('kasir')" id="btn-tab-kasir" class="tab-nav-btn px-4 py-2 rounded-lg transition bg-white text-indigo-600 shadow-xs">Kasir</button>
-          <button onclick="switchTab('barang')" id="btn-tab-barang" class="tab-nav-btn px-4 py-2 rounded-lg transition hover:text-slate-900">Barang & Stok</button>
-          <button onclick="switchTab('kategori')" id="btn-tab-kategori" class="tab-nav-btn px-4 py-2 rounded-lg transition hover:text-slate-900">Kategori</button>
-          <a href="/users.html" class="px-4 py-2 rounded-lg transition hover:text-slate-900">Kelola User</a>
+          <button onclick="switchTab('kasir')" id="btn-tab-kasir" class="tab-nav-btn px-3.5 py-2 rounded-xl transition bg-white text-indigo-600 shadow-xs">Kasir</button>
+          <button onclick="switchTab('barang')" id="btn-tab-barang" class="tab-nav-btn px-3.5 py-2 rounded-xl transition hover:text-slate-900">Barang & Stok</button>
+          <button onclick="switchTab('kategori')" id="btn-tab-kategori" class="tab-nav-btn px-3.5 py-2 rounded-xl transition hover:text-slate-900">Kategori</button>
+          <button onclick="switchTab('riwayat')" id="btn-tab-riwayat" class="tab-nav-btn px-3.5 py-2 rounded-xl transition hover:text-slate-900">Riwayat Transaksi</button>
+          <button onclick="switchTab('opname')" id="btn-tab-opname" class="tab-nav-btn px-3.5 py-2 rounded-xl transition hover:text-slate-900">Stok Opname</button>
+          <a href="/users.html" class="px-3.5 py-2 rounded-xl transition hover:text-slate-900">Kelola User</a>
         </nav>
 
         <!-- User Profile & Action -->
@@ -84,12 +91,14 @@
       </div>
     </header>
 
-    <!-- Navigation Mobile -->
-    <div class="md:hidden bg-white border-b border-slate-200 px-4 py-2 flex justify-around text-xs font-semibold">
-      <button onclick="switchTab('kasir')" class="text-indigo-600 py-1">Kasir</button>
-      <button onclick="switchTab('barang')" class="text-slate-600 py-1">Barang</button>
-      <button onclick="switchTab('kategori')" class="text-slate-600 py-1">Kategori</button>
-      <a href="/users.html" class="text-slate-600 py-1">User</a>
+    <!-- Mobile Navigation -->
+    <div class="md:hidden bg-white border-b border-slate-200 px-4 py-2 flex overflow-x-auto gap-2 text-xs font-semibold">
+      <button onclick="switchTab('kasir')" class="text-indigo-600 py-1 whitespace-nowrap">Kasir</button>
+      <button onclick="switchTab('barang')" class="text-slate-600 py-1 whitespace-nowrap">Barang</button>
+      <button onclick="switchTab('kategori')" class="text-slate-600 py-1 whitespace-nowrap">Kategori</button>
+      <button onclick="switchTab('riwayat')" class="text-slate-600 py-1 whitespace-nowrap">Riwayat Transaksi</button>
+      <button onclick="switchTab('opname')" class="text-slate-600 py-1 whitespace-nowrap">Stok Opname</button>
+      <a href="/users.html" class="text-slate-600 py-1 whitespace-nowrap">User</a>
     </div>
 
     <!-- Main Content Area -->
@@ -131,17 +140,13 @@
           <!-- Summary & Payment -->
           <div class="pt-4 border-t border-slate-100 space-y-3 bg-white">
             <div class="space-y-1.5 text-xs">
-              <div class="flex justify-between text-slate-500">
-                <span>Subtotal</span>
-                <span id="subtotalHarga" class="font-semibold text-slate-700">Rp 0</span>
-              </div>
-              <div class="flex justify-between text-base font-bold text-slate-900 pt-1 border-t border-dashed">
+              <div class="flex justify-between text-base font-bold text-slate-900 pt-1">
                 <span>Total Bayar</span>
                 <span id="totalHarga" class="text-indigo-600">Rp 0</span>
               </div>
             </div>
 
-            <div class="space-y-2 pt-2">
+            <div class="space-y-1">
               <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500">Jumlah Uang (Rp)</label>
               <input type="number" id="inputBayar" placeholder="0" oninput="hitungKembali()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500">
             </div>
@@ -152,8 +157,8 @@
             </div>
 
             <button onclick="prosesBayar()" class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-100 text-sm flex items-center justify-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-              Selesaikan Transaksi
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+              Proses & Cetak Nota
             </button>
           </div>
         </div>
@@ -176,7 +181,6 @@
           </div>
         </div>
 
-        <!-- Table Container -->
         <div class="overflow-x-auto rounded-xl border border-slate-100 max-h-[calc(100vh-250px)]">
           <table class="w-full text-left border-collapse text-xs">
             <thead class="sticky top-0 bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
@@ -221,12 +225,135 @@
         </div>
       </div>
 
+      <!-- ================= TAB 4: RIWAYAT TRANSAKSI ================= -->
+      <div id="tab-riwayat" class="tab-content hidden bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">Riwayat Transaksi Penjualan</h2>
+            <p class="text-xs text-slate-400">Daftar faktur transaksi penjualan yang telah diproses</p>
+          </div>
+          <button onclick="loadRiwayatTransaksi()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Refresh
+          </button>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-100 max-h-[calc(100vh-250px)]">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="sticky top-0 bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+              <tr>
+                <th class="p-3.5">No. Faktur</th>
+                <th class="p-3.5">Tanggal & Waktu</th>
+                <th class="p-3.5">Kasir</th>
+                <th class="p-3.5">Total Belanja</th>
+                <th class="p-3.5">Estimasi Laba</th>
+                <th class="p-3.5">Bayar / Kembali</th>
+                <th class="p-3.5 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tabelRiwayat" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ================= TAB 5: STOK OPNAME ================= -->
+      <div id="tab-opname" class="tab-content hidden bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-6">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">Stok Opname & Audit Fisik</h2>
+            <p class="text-xs text-slate-400">Catatan penambahan/koreksi stok fisik di gudang beserta user pelaksana</p>
+          </div>
+          <button onclick="openModal('modalOpname')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition shadow-md shadow-indigo-100">+ Input Restock / Opname</button>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-100 max-h-[calc(100vh-280px)]">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="sticky top-0 bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+              <tr>
+                <th class="p-3.5">Waktu Pencatatan</th>
+                <th class="p-3.5">Nama Barang</th>
+                <th class="p-3.5">SKU</th>
+                <th class="p-3.5">Jumlah Masuk</th>
+                <th class="p-3.5">Harga Beli / Unit</th>
+                <th class="p-3.5">Petugas (User)</th>
+                <th class="p-3.5">Catatan</th>
+              </tr>
+            </thead>
+            <tbody id="tabelOpname" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+
     </main>
   </div>
 
-  <!-- ================= MODAL POPUPS ================= -->
-  
-  <!-- Modal Add/Edit Barang -->
+  <!-- ================= MODAL CETAK NOTA / STRUK ================= -->
+  <div id="modalNota" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+      
+      <!-- Area Cetak -->
+      <div id="printArea" class="space-y-3 text-xs text-slate-800">
+        <div class="text-center border-b border-dashed pb-3">
+          <h3 class="font-bold text-sm text-slate-900">POS KASIR RETAIL</h3>
+          <p class="text-[10px] text-slate-500">Struk Penjualan Resmi</p>
+        </div>
+        <div class="space-y-1 text-[11px] border-b border-dashed pb-2">
+          <div class="flex justify-between"><span class="text-slate-500">No. Faktur:</span><span id="notaFaktur" class="font-mono font-bold">INV-000</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">Tanggal:</span><span id="notaTanggal">00/00/0000</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">Kasir:</span><span id="notaKasir" class="font-semibold">-</span></div>
+        </div>
+        <div id="notaItemList" class="space-y-1.5 border-b border-dashed pb-2"></div>
+        <div class="space-y-1 pt-1 font-semibold text-xs">
+          <div class="flex justify-between text-sm font-bold text-slate-900"><span>Total:</span><span id="notaTotal" class="text-indigo-600">Rp 0</span></div>
+          <div class="flex justify-between font-normal text-slate-600"><span>Bayar:</span><span id="notaBayar">Rp 0</span></div>
+          <div class="flex justify-between font-normal text-slate-600"><span>Kembali:</span><span id="notaKembali">Rp 0</span></div>
+        </div>
+        <div class="text-center text-[10px] text-slate-400 pt-3 border-t border-dashed">Terima Kasih Atas Kunjungan Anda!</div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-2 mt-5">
+        <button onclick="window.print()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          Cetak Nota
+        </button>
+        <button onclick="closeModal('modalNota'); loadAllData();" class="px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl text-xs font-semibold transition">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL STOK OPNAME ================= -->
+  <div id="modalOpname" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <h3 class="text-base font-bold text-slate-900 mb-4">Input Stok Masuk / Restock</h3>
+      <form id="formOpname" class="space-y-3.5 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Pilih Produk</label>
+          <select id="op_barang" required class="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 bg-white"></select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Jumlah Masuk</label>
+            <input type="number" id="op_jumlah" placeholder="Contoh: 10" required class="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">Harga Beli / Unit (Rp)</label>
+            <input type="number" id="op_harga" placeholder="Contoh: 5000" required class="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Catatan Opname</label>
+          <input type="text" id="op_catatan" placeholder="Misal: Restock supplier / Opname fisik" required class="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" onclick="closeModal('modalOpname')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition">Batal</button>
+          <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition shadow-md shadow-indigo-100">Simpan Stok</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL FORM BARANG (ADD/EDIT) ================= -->
   <div id="modalBarang" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
       <div class="flex justify-between items-center mb-5">
@@ -236,17 +363,14 @@
 
       <form id="formBarang" class="space-y-3.5 text-xs">
         <input type="hidden" id="b_id">
-        
         <div>
           <label class="block font-semibold text-slate-600 mb-1">Kode SKU</label>
           <input type="text" id="b_sku" placeholder="Contoh: BRG-001" required class="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
-        
         <div>
           <label class="block font-semibold text-slate-600 mb-1">Nama Barang</label>
           <input type="text" id="b_nama" placeholder="Nama Produk Lengkap" required class="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
-
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block font-semibold text-slate-600 mb-1">Kategori Utama</label>
@@ -257,7 +381,6 @@
             <select id="b_sub" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 bg-white"></select>
           </div>
         </div>
-
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block font-semibold text-slate-600 mb-1">Harga Beli (Rp)</label>
@@ -268,17 +391,14 @@
             <input type="number" id="b_hjual" placeholder="0" required class="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
           </div>
         </div>
-
         <div>
           <label class="block font-semibold text-slate-600 mb-1">Stok Awal</label>
           <input type="number" id="b_stok" placeholder="0" required class="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
-
         <div>
           <label class="block font-semibold text-slate-600 mb-1">Keterangan / Detail</label>
           <textarea id="b_keterangan" placeholder="Catatan tambahan produk..." rows="2" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
         </div>
-
         <div class="flex justify-end gap-2 pt-3">
           <button type="button" onclick="closeModal('modalBarang')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition">Batal</button>
           <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition shadow-md shadow-indigo-100">Simpan Barang</button>
@@ -287,7 +407,7 @@
     </div>
   </div>
 
-  <!-- Modal Kategori Utama -->
+  <!-- MODAL KATEGORI UTAMA -->
   <div id="modalKategori" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
       <h3 class="text-base font-bold text-slate-900 mb-4">Tambah Kategori Utama</h3>
@@ -301,7 +421,7 @@
     </div>
   </div>
 
-  <!-- Modal Sub Kategori -->
+  <!-- MODAL SUB KATEGORI -->
   <div id="modalSub" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
       <h3 class="text-base font-bold text-slate-900 mb-4">Tambah Sub-Kategori</h3>
@@ -316,67 +436,52 @@
     </div>
   </div>
 
-  <!-- ================= LOGIKA JAVASCRIPT UTAMA ================= -->
+  <!-- ================= JAVASCRIPT APLIKASI UTAMA ================= -->
   <script>
     let currentUser = JSON.parse(localStorage.getItem('user'));
     let produkList = [];
     let keranjang = [];
     let masterKategori = [];
     let masterSub = [];
+    let riwayatTransaksiList = [];
 
     if (currentUser) showApp();
 
-    // Event Login
+    // Handle Login
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const username = document.getElementById('logUsername').value;
-      const password = document.getElementById('logPassword').value;
-
-      try {
-        const res = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-
-        if (res.ok && data.user) {
-          localStorage.setItem('user', JSON.stringify(data.user));
-          currentUser = data.user;
-          showApp();
-        } else {
-          alert(data.message || 'Login gagal');
-        }
-      } catch (err) {
-        alert('Koneksi gagal: ' + err.message);
-      }
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: document.getElementById('logUsername').value, password: document.getElementById('logPassword').value })
+      });
+      const data = await res.json();
+      if (res.ok && data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+        currentUser = data.user;
+        showApp();
+      } else { alert(data.message || 'Login gagal'); }
     });
 
     function showApp() {
       document.getElementById('viewLogin').classList.add('hidden');
       document.getElementById('viewApp').classList.remove('hidden');
-      document.getElementById('userInfo').innerText = `${currentUser.nama}`;
+      document.getElementById('userInfo').innerText = currentUser.nama;
       loadAllData();
     }
 
-    function logout() {
-      localStorage.clear();
-      window.location.reload();
-    }
+    function logout() { localStorage.clear(); window.location.reload(); }
 
-    // Tab Navigation Active Styling
+    // Navigasi Tab
     function switchTab(tabName) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-
       document.querySelectorAll('.tab-nav-btn').forEach(btn => {
         btn.classList.remove('bg-white', 'text-indigo-600', 'shadow-xs');
         btn.classList.add('hover:text-slate-900');
       });
       const activeBtn = document.getElementById(`btn-tab-${tabName}`);
-      if (activeBtn) {
-        activeBtn.classList.add('bg-white', 'text-indigo-600', 'shadow-xs');
-      }
+      if (activeBtn) activeBtn.classList.add('bg-white', 'text-indigo-600', 'shadow-xs');
     }
 
     function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
@@ -385,74 +490,58 @@
     async function loadAllData() {
       loadProduk();
       loadKategoriAndSub();
+      loadRiwayatTransaksi();
+      loadStokOpname();
     }
 
-    // --- LOGIKA KASIR & BARANG ---
+    // --- 1. PRODUK & KASIR ---
     async function loadProduk() {
       try {
         const res = await fetch('/api/barang');
         produkList = await res.json();
         renderGridKasir(produkList);
         renderTabelBarang(produkList);
+
+        // Populate dropdown stok opname
+        document.getElementById('op_barang').innerHTML = `<option value="">Pilih Barang</option>` + produkList.map(p => `<option value="${p.id}">${p.nama_barang} (Stok: ${p.stok})</option>`).join('');
       } catch (err) {
         console.error('Gagal mengambil data barang:', err);
       }
     }
 
-    // Render Grid Katalogue Produk (Kasir)
     function renderGridKasir(data) {
       const grid = document.getElementById('produkGrid');
-      if (!data || data.length === 0) {
-        grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs">Produk tidak ditemukan</div>`;
-        return;
-      }
-      
-      grid.innerHTML = data.map(p => {
-        const isStokHabis = p.stok <= 0;
-        return `
-          <div onclick="${isStokHabis ? '' : `tambahKeranjang('${p.id}')`}" class="p-3 bg-white border border-slate-200/80 hover:border-indigo-500/80 rounded-xl cursor-pointer transition shadow-2xs hover:shadow-md flex flex-col justify-between group ${isStokHabis ? 'opacity-50 cursor-not-allowed bg-slate-50' : ''}">
-            <div>
-              <div class="flex justify-between items-start gap-1 mb-1">
-                <span class="text-[10px] font-bold px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded-md font-mono">${p.kode_sku}</span>
-                <span class="text-[10px] font-semibold ${p.stok > 5 ? 'text-emerald-600 bg-emerald-50' : 'text-amber-600 bg-amber-50'} px-1.5 py-0.5 rounded-md">
-                  Stok: ${p.stok}
-                </span>
-              </div>
-              <h4 class="font-bold text-xs text-slate-800 line-clamp-2 group-hover:text-indigo-600 transition">${p.nama_barang}</h4>
-              <p class="text-[10px] text-slate-400 line-clamp-1 mt-0.5">${p.keterangan || '-'}</p>
+      if (!data || !data.length) { grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs">Produk kosong</div>`; return; }
+      grid.innerHTML = data.map(p => `
+        <div onclick="${p.stok > 0 ? `tambahKeranjang('${p.id}')` : ''}" class="p-3 bg-white border border-slate-200/80 hover:border-indigo-500 rounded-xl cursor-pointer transition flex flex-col justify-between shadow-2xs hover:shadow-md group ${p.stok <= 0 ? 'opacity-50 bg-slate-50 cursor-not-allowed' : ''}">
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 font-bold">${p.kode_sku}</span>
+              <span class="text-[10px] font-semibold text-emerald-600">Stok: ${p.stok}</span>
             </div>
-            <div class="mt-3 pt-2 border-t border-slate-100 flex justify-between items-center">
-              <span class="text-xs font-bold text-indigo-600">Rp ${Number(p.harga_jual).toLocaleString()}</span>
-              <span class="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold group-hover:bg-indigo-600 group-hover:text-white transition">+</span>
-            </div>
+            <h4 class="font-bold text-xs text-slate-800 line-clamp-2 group-hover:text-indigo-600 transition">${p.nama_barang}</h4>
+            <p class="text-[10px] text-slate-400 line-clamp-1 mt-0.5">${p.keterangan || '-'}</p>
           </div>
-        `;
-      }).join('');
+          <div class="mt-3 pt-2 border-t border-slate-100 flex justify-between items-center">
+            <span class="text-xs font-bold text-indigo-600">Rp ${Number(p.harga_jual).toLocaleString()}</span>
+            <span class="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold group-hover:bg-indigo-600 group-hover:text-white transition">+</span>
+          </div>
+        </div>
+      `).join('');
     }
 
-    // Search Real-time Kasir (Nama, SKU, Keterangan)
     function filterProdukKasir() {
-      const keyword = document.getElementById('inputSearchKasir').value.toLowerCase().trim();
-      const filtered = produkList.filter(p => 
-        p.nama_barang.toLowerCase().includes(keyword) || 
-        p.kode_sku.toLowerCase().includes(keyword) || 
-        (p.keterangan && p.keterangan.toLowerCase().includes(keyword))
-      );
-      renderGridKasir(filtered);
+      const kw = document.getElementById('inputSearchKasir').value.toLowerCase().trim();
+      renderGridKasir(produkList.filter(p => p.nama_barang.toLowerCase().includes(kw) || p.kode_sku.toLowerCase().includes(kw) || (p.keterangan && p.keterangan.toLowerCase().includes(kw))));
     }
 
-    // --- KERANJANG BELANJA ---
     function tambahKeranjang(id) {
       const p = produkList.find(x => x.id === id);
       if (!p || p.stok <= 0) return;
-
       const item = keranjang.find(x => x.id === id);
       if (item) {
-        if (item.jumlah < p.stok) {
-          item.jumlah++;
-        } else {
-          alert('Jumlah melebihi stok yang tersedia!');
-        }
+        if (item.jumlah < p.stok) item.jumlah++;
+        else alert('Batas stok tercapai!');
       } else {
         keranjang.push({ ...p, jumlah: 1 });
       }
@@ -463,28 +552,18 @@
       const item = keranjang.find(x => x.id === id);
       const p = produkList.find(x => x.id === id);
       if (!item) return;
-
       item.jumlah += delta;
-      if (item.jumlah > p.stok) {
-        item.jumlah = p.stok;
-        alert('Mencapai batas stok!');
-      }
-      if (item.jumlah <= 0) {
-        keranjang = keranjang.filter(x => x.id !== id);
-      }
+      if (item.jumlah > p.stok) item.jumlah = p.stok;
+      if (item.jumlah <= 0) keranjang = keranjang.filter(x => x.id !== id);
       renderKeranjang();
     }
 
-    function resetKeranjang() {
-      keranjang = [];
-      renderKeranjang();
-    }
+    function resetKeranjang() { keranjang = []; renderKeranjang(); }
 
     function renderKeranjang() {
       const container = document.getElementById('keranjangList');
-      if (keranjang.length === 0) {
-        container.innerHTML = `<div class="py-12 text-center text-slate-300 text-xs font-medium">Keranjang masih kosong</div>`;
-        document.getElementById('subtotalHarga').innerText = 'Rp 0';
+      if (!keranjang.length) {
+        container.innerHTML = `<div class="py-12 text-center text-slate-300 text-xs">Keranjang kosong</div>`;
         document.getElementById('totalHarga').innerText = 'Rp 0';
         hitungKembali();
         return;
@@ -502,13 +581,12 @@
               <span class="px-2 font-semibold text-slate-700">${i.jumlah}</span>
               <button onclick="aturJumlah('${i.id}', 1)" class="w-6 h-6 flex items-center justify-center font-bold text-slate-500 hover:text-emerald-600">+</button>
             </div>
-            <span class="font-bold text-slate-900 min-w-[70px] text-right">Rp ${(i.harga_jual * i.jumlah).toLocaleString()}</span>
+            <span class="font-bold text-slate-900 min-w-[65px] text-right">Rp ${(i.harga_jual * i.jumlah).toLocaleString()}</span>
           </div>
         </div>
       `).join('');
 
       const total = keranjang.reduce((sum, i) => sum + (i.harga_jual * i.jumlah), 0);
-      document.getElementById('subtotalHarga').innerText = 'Rp ' + total.toLocaleString();
       document.getElementById('totalHarga').innerText = 'Rp ' + total.toLocaleString();
       hitungKembali();
     }
@@ -518,7 +596,6 @@
       const bayar = Number(document.getElementById('inputBayar').value) || 0;
       const kembali = bayar - total;
       const el = document.getElementById('textKembali');
-      
       if (kembali >= 0) {
         el.innerText = 'Rp ' + kembali.toLocaleString();
         el.className = 'font-bold text-emerald-600 text-sm';
@@ -529,42 +606,155 @@
     }
 
     async function prosesBayar() {
-      if (keranjang.length === 0) return alert('Keranjang belanja masih kosong!');
+      if (!keranjang.length) return alert('Keranjang belanja kosong!');
       const total = keranjang.reduce((sum, i) => sum + (i.harga_jual * i.jumlah), 0);
       const bayar = Number(document.getElementById('inputBayar').value);
-      if (bayar < total) return alert('Uang pembayaran masih kurang!');
+      if (bayar < total) return alert('Uang bayar kurang!');
 
-      try {
-        const res = await fetch('/api/transaksi', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            nomor_faktur: 'INV-' + Date.now(),
-            pengguna_id: currentUser.id,
-            jumlah_bayar: bayar,
-            items: keranjang
-          })
-        });
+      const nomorFaktur = 'INV-' + Date.now();
+      const res = await fetch('/api/transaksi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nomor_faktur: nomorFaktur, pengguna_id: currentUser.id, jumlah_bayar: bayar, items: keranjang })
+      });
 
-        if (res.ok) {
-          alert('Transaksi Berhasil Disimpan!');
-          keranjang = [];
-          document.getElementById('inputBayar').value = '';
-          renderKeranjang();
-          loadProduk();
-        } else {
-          const d = await res.json();
-          alert(d.message || 'Gagal menyisipkan transaksi');
-        }
-      } catch (err) {
-        alert('Terjadi kesalahan sistem: ' + err.message);
+      if (res.ok) {
+        // Tampilkan modal nota cetak
+        tampilkanNota(nomorFaktur, new Date().toLocaleDateString('id-ID'), currentUser.nama, total, bayar, bayar - total, keranjang);
+        keranjang = [];
+        document.getElementById('inputBayar').value = '';
+        renderKeranjang();
+      } else {
+        const d = await res.json();
+        alert(d.message || 'Gagal memproses transaksi');
       }
     }
 
-    // --- CRUD TABEL BARANG ---
+    function tampilkanNota(faktur, tanggal, kasir, total, bayar, kembali, items) {
+      document.getElementById('notaFaktur').innerText = faktur;
+      document.getElementById('notaTanggal').innerText = tanggal;
+      document.getElementById('notaKasir').innerText = kasir;
+      document.getElementById('notaTotal').innerText = 'Rp ' + total.toLocaleString();
+      document.getElementById('notaBayar').innerText = 'Rp ' + bayar.toLocaleString();
+      document.getElementById('notaKembali').innerText = 'Rp ' + kembali.toLocaleString();
+      document.getElementById('notaItemList').innerHTML = items.map(i => `
+        <div class="flex justify-between">
+          <span>${i.nama_barang || i.nama} (${i.jumlah}x)</span>
+          <span>Rp ${((i.harga_jual || i.harga) * i.jumlah).toLocaleString()}</span>
+        </div>
+      `).join('');
+      openModal('modalNota');
+    }
+
+    // --- 2. RIWAYAT TRANSAKSI & CETAK ULANG NOTA ---
+    async function loadRiwayatTransaksi() {
+      try {
+        const res = await fetch('/api/transaksi');
+        riwayatTransaksiList = await res.json();
+        
+        const tbody = document.getElementById('tabelRiwayat');
+        if (!riwayatTransaksiList.length) {
+          tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">Belum ada riwayat transaksi</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = riwayatTransaksiList.map(t => `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3.5 font-mono font-bold text-slate-700">${t.nomor_faktur}</td>
+            <td class="p-3.5 text-slate-500">${new Date(t.dibuat_pada).toLocaleString('id-ID')}</td>
+            <td class="p-3.5 font-semibold text-slate-800">${t.nama_kasir || 'Kasir'}</td>
+            <td class="p-3.5 font-bold text-indigo-600">Rp ${Number(t.total_belanja).toLocaleString()}</td>
+            <td class="p-3.5 font-semibold text-emerald-600">Rp ${Number(t.total_laba || 0).toLocaleString()}</td>
+            <td class="p-3.5 text-slate-600">Rp ${Number(t.jumlah_bayar).toLocaleString()} / <span class="text-slate-400">Rp ${Number(t.kembalian).toLocaleString()}</span></td>
+            <td class="p-3.5 text-center">
+              <button onclick="cetakUlangNota('${t.id}')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-semibold rounded-lg transition text-xs flex items-center gap-1 mx-auto">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                Cetak Ulang
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error('Gagal mengambil riwayat transaksi:', err);
+      }
+    }
+
+    function cetakUlangNota(transaksiId) {
+      const t = riwayatTransaksiList.find(x => x.id === transaksiId);
+      if (!t) return alert('Data transaksi tidak ditemukan');
+
+      // Gunakan items default dummy/ringkas jika detail tidak ter-load
+      const items = [{ nama_barang: 'Item Transaksi ' + t.nomor_faktur, jumlah: 1, harga_jual: t.total_belanja }];
+      tampilkanNota(
+        t.nomor_faktur,
+        new Date(t.dibuat_pada).toLocaleDateString('id-ID'),
+        t.nama_kasir || 'Kasir',
+        t.total_belanja,
+        t.jumlah_bayar,
+        t.kembalian,
+        items
+      );
+    }
+
+    // --- 3. STOK OPNAME & RIWAYAT STOK ---
+    async function loadStokOpname() {
+      try {
+        const res = await fetch('/api/stok');
+        const data = await res.json();
+        
+        const tbody = document.getElementById('tabelOpname');
+        if (!data.length) {
+          tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">Belum ada data stok opname</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.map(s => `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3.5 text-slate-500">${s.dibuat_pada ? new Date(s.dibuat_pada).toLocaleString('id-ID') : '-'}</td>
+            <td class="p-3.5 font-bold text-slate-800">${s.nama_barang}</td>
+            <td class="p-3.5 font-mono text-slate-600">${s.kode_sku}</td>
+            <td class="p-3.5 font-bold text-emerald-600">+${s.jumlah_masuk}</td>
+            <td class="p-3.5 font-semibold text-slate-700">Rp ${Number(s.harga_beli_per_unit || 0).toLocaleString()}</td>
+            <td class="p-3.5 font-semibold text-indigo-600">${s.nama_user || 'Admin'}</td>
+            <td class="p-3.5 text-slate-500 max-w-xs truncate">${s.catatan || '-'}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error('Gagal memuat stok opname:', err);
+      }
+    }
+
+    document.getElementById('formOpname').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = {
+        barang_id: document.getElementById('op_barang').value,
+        pengguna_id: currentUser.id,
+        jumlah_masuk: Number(document.getElementById('op_jumlah').value),
+        harga_beli_per_unit: Number(document.getElementById('op_harga').value),
+        catatan: document.getElementById('op_catatan').value
+      };
+
+      const res = await fetch('/api/stok', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (res.ok) {
+        closeModal('modalOpname');
+        document.getElementById('formOpname').reset();
+        loadAllData();
+        alert('Stok opname berhasil dicatat & stok barang diperbarui!');
+      } else {
+        const d = await res.json();
+        alert(d.message || 'Gagal menyimpan stok opname');
+      }
+    });
+
+    // --- 4. TABEL MASTER BARANG CRUD ---
     function renderTabelBarang(data) {
       const tbody = document.getElementById('tabelBarang');
-      if (!data || data.length === 0) {
+      if (!data || !data.length) {
         tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400">Belum ada data barang</td></tr>`;
         return;
       }
@@ -586,13 +776,8 @@
     }
 
     function filterBarang() {
-      const keyword = document.getElementById('inputSearch').value.toLowerCase().trim();
-      const filtered = produkList.filter(b => 
-        b.nama_barang.toLowerCase().includes(keyword) || 
-        b.kode_sku.toLowerCase().includes(keyword) || 
-        (b.keterangan && b.keterangan.toLowerCase().includes(keyword))
-      );
-      renderTabelBarang(filtered);
+      const kw = document.getElementById('inputSearch').value.toLowerCase().trim();
+      renderTabelBarang(produkList.filter(b => b.nama_barang.toLowerCase().includes(kw) || b.kode_sku.toLowerCase().includes(kw) || (b.keterangan && b.keterangan.toLowerCase().includes(kw))));
     }
 
     function bukaModalBarang() {
@@ -633,20 +818,14 @@
         keterangan: document.getElementById('b_keterangan').value
       };
 
-      const method = id ? 'PUT' : 'POST';
       const res = await fetch('/api/barang', {
-        method,
+        method: id ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
 
-      if (res.ok) {
-        closeModal('modalBarang');
-        loadProduk();
-      } else {
-        const d = await res.json();
-        alert(d.message || 'Gagal menyimpan barang');
-      }
+      if (res.ok) { closeModal('modalBarang'); loadProduk(); }
+      else { const d = await res.json(); alert(d.message || 'Gagal menyimpan barang'); }
     });
 
     async function hapusBarang(id) {
@@ -659,7 +838,7 @@
       if (res.ok) loadProduk();
     }
 
-    // --- MASTER KATEGORI & SUB ---
+    // --- 5. KATEGORI & SUB-KATEGORI ---
     async function loadKategoriAndSub() {
       try {
         const res = await fetch('/api/kategori');
@@ -674,14 +853,14 @@
         document.getElementById('listKategori').innerHTML = masterKategori.map(k => `
           <div class="p-3 flex justify-between items-center hover:bg-slate-50">
             <span class="font-medium text-slate-700">${k.nama_kategori}</span>
-            <button onclick="hapusKategori('${k.id}')" class="text-red-500 hover:underline">Hapus</button>
+            <button onclick="hapusKat('kategori','${k.id}')" class="text-red-500 hover:underline">Hapus</button>
           </div>
         `).join('');
 
         document.getElementById('listSub').innerHTML = masterSub.map(s => `
           <div class="p-3 flex justify-between items-center hover:bg-slate-50">
             <span class="font-medium text-slate-700">${s.nama_sub_kategori}</span>
-            <button onclick="hapusSub('${s.id}')" class="text-red-500 hover:underline">Hapus</button>
+            <button onclick="hapusKat('sub','${s.id}')" class="text-red-500 hover:underline">Hapus</button>
           </div>
         `).join('');
       } catch (err) {
@@ -691,41 +870,19 @@
 
     document.getElementById('formKategori').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const res = await fetch('/api/kategori', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tipe: 'kategori', nama: document.getElementById('k_nama').value })
-      });
-      if (res.ok) {
-        document.getElementById('formKategori').reset();
-        closeModal('modalKategori');
-        loadKategoriAndSub();
-      }
+      await fetch('/api/kategori', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tipe: 'kategori', nama: document.getElementById('k_nama').value }) });
+      closeModal('modalKategori'); loadKategoriAndSub();
     });
 
     document.getElementById('formSub').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const res = await fetch('/api/kategori', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tipe: 'sub', kategori_id: document.getElementById('s_kategori').value, nama: document.getElementById('s_nama').value })
-      });
-      if (res.ok) {
-        document.getElementById('formSub').reset();
-        closeModal('modalSub');
-        loadKategoriAndSub();
-      }
+      await fetch('/api/kategori', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tipe: 'sub', kategori_id: document.getElementById('s_kategori').value, nama: document.getElementById('s_nama').value }) });
+      closeModal('modalSub'); loadKategoriAndSub();
     });
 
-    async function hapusKategori(id) {
-      if (!confirm('Hapus kategori ini?')) return;
-      await fetch('/api/kategori', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tipe: 'kategori', id }) });
-      loadKategoriAndSub();
-    }
-
-    async function hapusSub(id) {
-      if (!confirm('Hapus sub-kategori ini?')) return;
-      await fetch('/api/kategori', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tipe: 'sub', id }) });
+    async function hapusKat(tipe, id) {
+      if (!confirm('Hapus item ini?')) return;
+      await fetch('/api/kategori', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tipe, id }) });
       loadKategoriAndSub();
     }
   </script>
