@@ -360,28 +360,38 @@
     </div>
   </div>
   <!-- ================= MODAL STOK OPNAME ================= -->
+  <!-- ================= MODAL STOK OPNAME (DENGAN AUTOCOMPLETE SEARCH) ================= -->
   <div id="modalOpname" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
       <h3 class="text-base font-bold text-slate-900 mb-4">Input Stok Masuk / Restock</h3>
       <form id="formOpname" class="space-y-3.5 text-xs">
-        <div>
-          <label class="block font-semibold text-slate-600 mb-1">Pilih Produk</label>
-          <select id="op_barang" required class="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 bg-white"></select>
+        
+        <!-- Input dengan Autocomplete Search -->
+        <div class="relative">
+          <label class="block font-semibold text-slate-600 mb-1">Cari & Pilih Produk</label>
+          <input type="hidden" id="op_barang_id" required>
+          <input type="text" id="op_search_input" placeholder="Ketik nama atau SKU barang..." oninput="filterDropdownOpname()" autocomplete="off" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50">
+          
+          <!-- Dropdown Hasil Filter -->
+          <div id="op_dropdown_list" class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-48 overflow-y-auto hidden z-50 divide-y divide-slate-100"></div>
         </div>
+
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block font-semibold text-slate-600 mb-1">Jumlah Masuk</label>
-            <input type="number" id="op_jumlah" placeholder="Contoh: 10" required class="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+            <input type="number" id="op_jumlah" placeholder="Contoh: 10" required class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
           </div>
           <div>
             <label class="block font-semibold text-slate-600 mb-1">Harga Beli / Unit (Rp)</label>
-            <input type="number" id="op_harga" placeholder="Contoh: 5000" required class="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+            <input type="number" id="op_harga" placeholder="Contoh: 5000" required class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
           </div>
         </div>
+
         <div>
           <label class="block font-semibold text-slate-600 mb-1">Catatan Opname</label>
-          <input type="text" id="op_catatan" placeholder="Misal: Restock supplier / Opname fisik" required class="w-full px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+          <input type="text" id="op_catatan" placeholder="Misal: Restock supplier / Opname fisik" required class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
+
         <div class="flex justify-end gap-2 pt-3">
           <button type="button" onclick="closeModal('modalOpname')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition">Batal</button>
           <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition shadow-md shadow-indigo-100">Simpan Stok</button>
