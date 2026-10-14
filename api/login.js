@@ -9,7 +9,7 @@ export default async function handler(req, res) {
 
   try {
     const result = await db.execute({
-      sql: 'SELECT * FROM users WHERE username = ? AND password = ?',
+      sql: 'SELECT * FROM pengguna WHERE username = ? AND password = ?',
       args: [username, password]
     });
 
