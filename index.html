@@ -996,6 +996,89 @@
       await fetch('/api/kategori', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tipe, id }) });
       loadKategoriAndSub();
     }
+  // --- LOGIKA AUTOCOMPLETE SEARCH STOK OPNAME ---
+    function filterDropdownOpname() {
+      const keyword = document.getElementById('op_search_input').value.toLowerCase().trim();
+      const dropdown = document.getElementById('op_dropdown_list');
+      
+      if (!keyword) {
+        dropdown.classList.add('hidden');
+        return;
+      }
+
+      const filtered = produkList.filter(p => 
+        p.nama_barang.toLowerCase().includes(keyword) || 
+        p.kode_sku.toLowerCase().includes(keyword)
+      );
+
+      if (filtered.length === 0) {
+        dropdown.innerHTML = `<div class="p-3 text-slate-400 text-center">Barang tidak ditemukan</div>`;
+        dropdown.classList.remove('hidden');
+        return;
+      }
+
+      dropdown.innerHTML = filtered.map(p => `
+        <div onclick="pilihBarangOpname('${p.id}', '${p.nama_barang.replace(/'/g, "\\'")}', '${p.kode_sku}')" class="p-2.5 hover:bg-indigo-50 cursor-pointer transition flex justify-between items-center text-xs">
+          <div>
+            <span class="font-bold text-slate-800 block">${p.nama_barang}</span>
+            <span class="text-[10px] text-slate-400 font-mono">SKU: ${p.kode_sku}</span>
+          </div>
+          <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Stok: ${p.stok}</span>
+        </div>
+      `).join('');
+
+      dropdown.classList.remove('hidden');
+    }
+
+    function pilihBarangOpname(id, nama, sku) {
+      document.getElementById('op_barang_id').value = id;
+      document.getElementById('op_search_input').value = `${nama} (${sku})`;
+      document.getElementById('op_dropdown_list').classList.add('hidden');
+    }
+
+    // Tutup dropdown jika klik di luar area input
+    window.addEventListener('click', function(e) {
+      const input = document.getElementById('op_search_input');
+      const dropdown = document.getElementById('op_dropdown_list');
+      if (input && dropdown && !input.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.add('hidden');
+      }
+    });
+
+  document.getElementById('formOpname').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const barangId = document.getElementById('op_barang_id').value;
+      if (!barangId) {
+        alert('Silakan pilih produk terlebih dahulu dari daftar pencarian!');
+        return;
+      }
+
+      const body = {
+        barang_id: barangId,
+        pengguna_id: currentUser.id,
+        jumlah_masuk: Number(document.getElementById('op_jumlah').value),
+        harga_beli_per_unit: Number(document.getElementById('op_harga').value),
+        catatan: document.getElementById('op_catatan').value
+      };
+
+      const res = await fetch('/api/stok', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (res.ok) {
+        closeModal('modalOpname');
+        document.getElementById('formOpname').reset();
+        document.getElementById('op_barang_id').value = '';
+        loadAllData();
+        alert('Stok opname berhasil dicatat & stok barang diperbarui!');
+      } else {
+        const d = await res.json();
+        alert(d.message || 'Gagal menyimpan stok opname');
+      }
+    });
+    
   </script>
 </body>
 </html>
