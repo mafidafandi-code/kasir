@@ -20,7 +20,12 @@ export default async function handler(req, res) {
     const user = result.rows[0];
     return res.status(200).json({
       message: 'Login berhasil',
-      user: { id: user.id, username: user.username, nama: user.nama, role: user.role }
+      user: {
+        id: user.id,
+        username: user.username,
+        nama: user.nama_lengkap,
+        role: user.peran
+      }
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
