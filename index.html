@@ -3,43 +3,466 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Aplikasi Kasir POS</title>
+  <title>Aplikasi POS Kasir Modern</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-100 flex items-center justify-center min-h-screen">
-  <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-    <h2 class="text-2xl font-bold mb-6 text-center text-slate-800">Login Kasir POS</h2>
-    <form id="loginForm" class="space-y-4">
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">Username</label>
-        <input type="text" id="username" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
-        <input type="password" id="password" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-      </div>
-      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-semibold">Masuk</button>
-    </form>
+<body class="bg-slate-100 min-h-screen">
+
+  <!-- 1. HALAMAN LOGIN -->
+  <div id="viewLogin" class="flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+      <h2 class="text-2xl font-bold mb-6 text-center text-slate-800">Login Kasir POS</h2>
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Username</label>
+          <input type="text" id="logUsername" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+          <input type="password" id="logPassword" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-semibold">Masuk</button>
+      </form>
+    </div>
   </div>
 
+  <!-- 2. APLIKASI UTAMA (DASHBOARD SPA) -->
+  <div id="viewApp" class="hidden min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="bg-blue-600 text-white px-6 py-4 flex justify-between items-center shadow-md">
+      <h1 class="text-xl font-bold">POS Kasir</h1>
+      <div class="flex items-center gap-2 text-sm">
+        <button onclick="switchTab('kasir')" class="nav-btn bg-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-800 transition">Kasir</button>
+        <button onclick="switchTab('barang')" class="nav-btn px-3 py-1.5 rounded-lg hover:bg-blue-800 transition">Barang</button>
+        <button onclick="switchTab('kategori')" class="nav-btn px-3 py-1.5 rounded-lg hover:bg-blue-800 transition">Kategori</button>
+        <button onclick="switchTab('user')" class="nav-btn px-3 py-1.5 rounded-lg hover:bg-blue-800 transition">Pengguna</button>
+        <span id="userInfo" class="bg-blue-800 px-3 py-1.5 rounded-lg ml-2 font-medium"></span>
+        <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg ml-2">Logout</button>
+      </div>
+    </nav>
+
+    <!-- Konten Tab -->
+    <main class="flex-1 p-6 max-w-7xl mx-auto w-full">
+      
+      <!-- TAB 1: KASIR -->
+      <div id="tab-kasir" class="tab-content grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="md:col-span-2 bg-white p-6 rounded-xl shadow-sm">
+          <h2 class="text-lg font-bold mb-4">Pilih Produk</h2>
+          <div id="produkGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-sm flex flex-col justify-between">
+          <div>
+            <h2 class="text-lg font-bold mb-4">Keranjang Belanja</h2>
+            <div id="keranjangList" class="space-y-3 max-h-80 overflow-y-auto mb-4"></div>
+          </div>
+          <div class="border-t pt-4 space-y-3">
+            <div class="flex justify-between text-lg font-bold">
+              <span>Total:</span>
+              <span id="totalHarga">Rp 0</span>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600">Bayar (Rp):</label>
+              <input type="number" id="inputBayar" oninput="hitungKembali()" class="w-full border p-2 rounded-lg">
+            </div>
+            <div class="flex justify-between text-sm text-gray-600">
+              <span>Kembalian:</span>
+              <span id="textKembali">Rp 0</span>
+            </div>
+            <button onclick="prosesBayar()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg">Proses Transaksi</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: BARANG -->
+      <div id="tab-barang" class="tab-content hidden bg-white p-6 rounded-xl shadow-sm">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">Kelola Stok & Barang</h2>
+          <button onclick="openModal('modalBarang')" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700">+ Tambah Barang</button>
+        </div>
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="border-b bg-slate-50">
+              <th class="p-3">SKU</th>
+              <th class="p-3">Nama Barang</th>
+              <th class="p-3">Kategori</th>
+              <th class="p-3">Harga Beli</th>
+              <th class="p-3">Harga Jual</th>
+              <th class="p-3">Stok</th>
+            </tr>
+          </thead>
+          <tbody id="tabelBarang"></tbody>
+        </table>
+      </div>
+
+      <!-- TAB 3: KATEGORI -->
+      <div id="tab-kategori" class="tab-content hidden bg-white p-6 rounded-xl shadow-sm">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">Kelola Kategori & Sub-Kategori</h2>
+          <button onclick="openModal('modalKategori')" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700">+ Tambah Kategori</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="font-bold mb-2 text-slate-700">Daftar Kategori</h3>
+            <ul id="listKategori" class="border rounded-lg divide-y text-sm"></ul>
+          </div>
+          <div>
+            <h3 class="font-bold mb-2 text-slate-700">Daftar Sub-Kategori</h3>
+            <ul id="listSub" class="border rounded-lg divide-y text-sm"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: PENGGUNA -->
+      <div id="tab-user" class="tab-content hidden bg-white p-6 rounded-xl shadow-sm">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">Kelola Pengguna Kasir</h2>
+          <button onclick="openModal('modalUser')" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700">+ Tambah Pengguna</button>
+        </div>
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="border-b bg-slate-50">
+              <th class="p-3">Username</th>
+              <th class="p-3">Nama Lengkap</th>
+              <th class="p-3">Peran</th>
+            </tr>
+          </thead>
+          <tbody id="tabelUser"></tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ================= MODAL POPUPS ================= -->
+  
+  <!-- Modal Tambah Barang -->
+  <div id="modalBarang" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4">
+    <div class="bg-white p-6 rounded-xl max-w-lg w-full">
+      <h3 class="text-lg font-bold mb-4">Tambah Barang Baru</h3>
+      <form id="formBarang" class="space-y-3">
+        <input type="text" id="b_sku" placeholder="Kode SKU" required class="w-full border p-2 rounded-lg">
+        <input type="text" id="b_nama" placeholder="Nama Barang" required class="w-full border p-2 rounded-lg">
+        <select id="b_kategori" class="w-full border p-2 rounded-lg"></select>
+        <select id="b_sub" class="w-full border p-2 rounded-lg"></select>
+        <div class="grid grid-cols-2 gap-2">
+          <input type="number" id="b_hbeli" placeholder="Harga Beli" required class="border p-2 rounded-lg">
+          <input type="number" id="b_hjual" placeholder="Harga Jual" required class="border p-2 rounded-lg">
+        </div>
+        <input type="number" id="b_stok" placeholder="Stok Awal" required class="w-full border p-2 rounded-lg">
+        <div class="flex justify-end gap-2 mt-4">
+          <button type="button" onclick="closeModal('modalBarang')" class="px-4 py-2 bg-gray-300 rounded-lg">Batal</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Tambah Kategori / Sub -->
+  <div id="modalKategori" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4">
+    <div class="bg-white p-6 rounded-xl max-w-md w-full space-y-6">
+      <div>
+        <h3 class="text-lg font-bold mb-2">Tambah Kategori Utama</h3>
+        <form id="formKategori" class="space-y-3">
+          <input type="text" id="k_nama" placeholder="Nama Kategori" required class="w-full border p-2 rounded-lg">
+          <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg">Simpan Kategori</button>
+        </form>
+      </div>
+      <hr>
+      <div>
+        <h3 class="text-lg font-bold mb-2">Tambah Sub-Kategori</h3>
+        <form id="formSub" class="space-y-3">
+          <select id="s_kategori" required class="w-full border p-2 rounded-lg"></select>
+          <input type="text" id="s_nama" placeholder="Nama Sub-Kategori" required class="w-full border p-2 rounded-lg">
+          <button type="submit" class="w-full bg-emerald-600 text-white py-2 rounded-lg">Simpan Sub-Kategori</button>
+        </form>
+      </div>
+      <div class="flex justify-end">
+        <button type="button" onclick="closeModal('modalKategori')" class="px-4 py-2 bg-gray-300 rounded-lg">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Tambah Pengguna -->
+  <div id="modalUser" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4">
+    <div class="bg-white p-6 rounded-xl max-w-md w-full">
+      <h3 class="text-lg font-bold mb-4">Tambah Pengguna Baru</h3>
+      <form id="formUser" class="space-y-3">
+        <input type="text" id="u_username" placeholder="Username" required class="w-full border p-2 rounded-lg">
+        <input type="password" id="u_password" placeholder="Password" required class="w-full border p-2 rounded-lg">
+        <input type="text" id="u_nama" placeholder="Nama Lengkap" required class="w-full border p-2 rounded-lg">
+        <select id="u_peran" class="w-full border p-2 rounded-lg">
+          <option value="kasir">Kasir</option>
+          <option value="admin">Admin</option>
+        </select>
+        <div class="flex justify-end gap-2 mt-4">
+          <button type="button" onclick="closeModal('modalUser')" class="px-4 py-2 bg-gray-300 rounded-lg">Batal</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= JAVASCRIPT UTAMA (SPA) ================= -->
   <script>
+    let currentUser = JSON.parse(localStorage.getItem('user'));
+    let produkList = [];
+    let keranjang = [];
+    let masterKategori = [];
+    let masterSub = [];
+
+    // Cek Sesi Login
+    if (currentUser) {
+      showApp();
+    }
+
+    // Handle Login
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
+      const username = document.getElementById('logUsername').value;
+      const password = document.getElementById('logPassword').value;
 
       const res = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       });
-
       const data = await res.json();
+
       if (res.ok) {
         localStorage.setItem('user', JSON.stringify(data.user));
-        window.location.href = '/dashboard.html';
+        currentUser = data.user;
+        showApp();
       } else {
         alert(data.message);
+      }
+    });
+
+    function showApp() {
+      document.getElementById('viewLogin').classList.add('hidden');
+      document.getElementById('viewApp').classList.remove('hidden');
+      document.getElementById('userInfo').innerText = `${currentUser.nama} (${currentUser.role})`;
+      loadAllData();
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.reload();
+    }
+
+    // Navigasi Tab SPA
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+    }
+
+    // Kontrol Modal Popup
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    // Ambil Semua Data dari API
+    async function loadAllData() {
+      loadProduk();
+      loadKategoriAndSub();
+      loadUsers();
+    }
+
+    // --- 1. PRODUK & KASIR ---
+    async function loadProduk() {
+      const res = await fetch('/api/barang');
+      produkList = await res.json();
+      
+      // Render Kasir Grid
+      document.getElementById('produkGrid').innerHTML = produkList.map(p => `
+        <div onclick="tambahKeranjang('${p.id}')" class="border p-4 rounded-lg cursor-pointer hover:border-blue-500 transition bg-slate-50">
+          <p class="font-bold text-slate-800">${p.nama_barang}</p>
+          <p class="text-xs text-slate-500">SKU: ${p.kode_sku}</p>
+          <p class="text-sm text-slate-600 mt-1">Stok: ${p.stok}</p>
+          <p class="text-blue-600 font-bold mt-2">Rp ${p.harga_jual.toLocaleString()}</p>
+        </div>
+      `).join('');
+
+      // Render Tabel Barang
+      document.getElementById('tabelBarang').innerHTML = produkList.map(b => `
+        <tr class="border-b">
+          <td class="p-3 font-semibold">${b.kode_sku}</td>
+          <td class="p-3">${b.nama_barang}</td>
+          <td class="p-3 text-xs text-gray-500">${b.nama_kategori || '-'}</td>
+          <td class="p-3">Rp ${b.harga_beli.toLocaleString()}</td>
+          <td class="p-3 text-blue-600 font-bold">Rp ${b.harga_jual.toLocaleString()}</td>
+          <td class="p-3 font-semibold">${b.stok}</td>
+        </tr>
+      `).join('');
+    }
+
+    function tambahKeranjang(id) {
+      const p = produkList.find(x => x.id === id);
+      const item = keranjang.find(x => x.id === id);
+      if (item) {
+        if (item.jumlah < p.stok) item.jumlah++;
+      } else {
+        keranjang.push({ ...p, jumlah: 1 });
+      }
+      renderKeranjang();
+    }
+
+    function renderKeranjang() {
+      document.getElementById('keranjangList').innerHTML = keranjang.map(i => `
+        <div class="flex justify-between items-center text-sm border-b pb-2">
+          <div>
+            <p class="font-semibold">${i.nama_barang}</p>
+            <p class="text-xs text-gray-500">x${i.jumlah}</p>
+          </div>
+          <p class="font-bold">Rp ${(i.harga_jual * i.jumlah).toLocaleString()}</p>
+        </div>
+      `).join('');
+
+      const total = keranjang.reduce((sum, i) => sum + (i.harga_jual * i.jumlah), 0);
+      document.getElementById('totalHarga').innerText = 'Rp ' + total.toLocaleString();
+      hitungKembali();
+    }
+
+    function hitungKembali() {
+      const total = keranjang.reduce((sum, i) => sum + (i.harga_jual * i.jumlah), 0);
+      const bayar = Number(document.getElementById('inputBayar').value) || 0;
+      const kembali = bayar - total;
+      document.getElementById('textKembali').innerText = 'Rp ' + (kembali > 0 ? kembali.toLocaleString() : 0);
+    }
+
+    async function prosesBayar() {
+      const total = keranjang.reduce((sum, i) => sum + (i.harga_jual * i.jumlah), 0);
+      const bayar = Number(document.getElementById('inputBayar').value);
+      if (bayar < total) return alert('Uang pembayaran kurang!');
+
+      const res = await fetch('/api/transaksi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nomor_faktur: 'INV-' + Date.now(),
+          pengguna_id: currentUser.id,
+          jumlah_bayar: bayar,
+          items: keranjang
+        })
+      });
+
+      if (res.ok) {
+        alert('Transaksi Berhasil!');
+        keranjang = [];
+        document.getElementById('inputBayar').value = '';
+        renderKeranjang();
+        loadProduk();
+      } else {
+        const d = await res.json();
+        alert(d.message);
+      }
+    }
+
+    // --- 2. KATEGORI & SUB-KATEGORI ---
+    async function loadKategoriAndSub() {
+      const res = await fetch('/api/kategori');
+      const data = await res.json();
+      masterKategori = data.kategori;
+      masterSub = data.sub_kategori;
+
+      // Dropdown di Modal Barang
+      document.getElementById('b_kategori').innerHTML = `<option value="">Pilih Kategori</option>` + masterKategori.map(k => `<option value="${k.id}">${k.nama_kategori}</option>`).join('');
+      document.getElementById('b_sub').innerHTML = `<option value="">Pilih Sub-Kategori</option>` + masterSub.map(s => `<option value="${s.id}">${s.nama_sub_kategori}</option>`).join('');
+      
+      // Dropdown di Modal Sub-Kategori
+      document.getElementById('s_kategori').innerHTML = `<option value="">Pilih Kategori Utama</option>` + masterKategori.map(k => `<option value="${k.id}">${k.nama_kategori}</option>`).join('');
+
+      // List Kategori & Sub di Tab Kategori
+      document.getElementById('listKategori').innerHTML = masterKategori.map(k => `<li class="p-2">${k.nama_kategori}</li>`).join('');
+      document.getElementById('listSub').innerHTML = masterSub.map(s => `<li class="p-2">${s.nama_sub_kategori}</li>`).join('');
+    }
+
+    document.getElementById('formKategori').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const res = await fetch('/api/kategori', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipe: 'kategori', nama: document.getElementById('k_nama').value })
+      });
+      if (res.ok) {
+        document.getElementById('formKategori').reset();
+        loadKategoriAndSub();
+      }
+    });
+
+    document.getElementById('formSub').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const res = await fetch('/api/kategori', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipe: 'sub', kategori_id: document.getElementById('s_kategori').value, nama: document.getElementById('s_nama').value })
+      });
+      if (res.ok) {
+        document.getElementById('formSub').reset();
+        loadKategoriAndSub();
+      }
+    });
+
+    // --- 3. BARANG ---
+    document.getElementById('formBarang').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = {
+        kode_sku: document.getElementById('b_sku').value,
+        nama_barang: document.getElementById('b_nama').value,
+        kategori_id: document.getElementById('b_kategori').value,
+        sub_kategori_id: document.getElementById('b_sub').value,
+        harga_beli: Number(document.getElementById('b_hbeli').value),
+        harga_jual: Number(document.getElementById('b_hjual').value),
+        stok: Number(document.getElementById('b_stok').value)
+      };
+
+      const res = await fetch('/api/barang', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (res.ok) {
+        document.getElementById('formBarang').reset();
+        closeModal('modalBarang');
+        loadProduk();
+      } else {
+        const d = await res.json();
+        alert(d.message);
+      }
+    });
+
+    // --- 4. PENGGUNA ---
+    async function loadUsers() {
+      const res = await fetch('/api/users');
+      const data = await res.json();
+      document.getElementById('tabelUser').innerHTML = data.map(u => `
+        <tr class="border-b">
+          <td class="p-3 font-semibold">${u.username}</td>
+          <td class="p-3">${u.nama_lengkap}</td>
+          <td class="p-3"><span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">${u.peran}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('formUser').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = {
+        username: document.getElementById('u_username').value,
+        password: document.getElementById('u_password').value,
+        nama_lengkap: document.getElementById('u_nama').value,
+        peran: document.getElementById('u_peran').value
+      };
+
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (res.ok) {
+        document.getElementById('formUser').reset();
+        closeModal('modalUser');
+        loadUsers();
+      } else {
+        const d = await res.json();
+        alert(d.message);
       }
     });
   </script>
