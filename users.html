@@ -7,18 +7,18 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 min-h-screen p-6">
-  <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-sm">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-xl font-bold">Kelola Pengguna Kasir</h1>
-      <a href="/dashboard.html" class="text-blue-600 hover:underline">← Kembali ke Kasir</a>
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-sm space-y-6">
+    <div class="flex justify-between items-center">
+      <h1 class="text-xl font-bold text-slate-800">Kelola Pengguna Kasir</h1>
+      <a href="/index.html" class="text-blue-600 font-medium hover:underline">← Kembali ke Kasir</a>
     </div>
 
     <!-- Form Tambah User -->
-    <form id="formUser" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-      <input type="text" id="username" placeholder="Username" required class="border p-2 rounded-lg outline-none">
-      <input type="password" id="password" placeholder="Password" required class="border p-2 rounded-lg outline-none">
-      <input type="text" id="nama_lengkap" placeholder="Nama Lengkap" required class="border p-2 rounded-lg outline-none">
-      <select id="peran" class="border p-2 rounded-lg outline-none">
+    <form id="formUser" class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-lg">
+      <input type="text" id="username" placeholder="Username" required class="border p-2 rounded-lg outline-none bg-white">
+      <input type="password" id="password" placeholder="Password" required class="border p-2 rounded-lg outline-none bg-white">
+      <input type="text" id="nama_lengkap" placeholder="Nama Lengkap" required class="border p-2 rounded-lg outline-none bg-white">
+      <select id="peran" class="border p-2 rounded-lg outline-none bg-white">
         <option value="kasir">Kasir</option>
         <option value="admin">Admin</option>
       </select>
@@ -28,10 +28,10 @@
     <!-- Tabel User -->
     <table class="w-full text-left border-collapse">
       <thead>
-        <tr class="border-b bg-slate-50 text-sm">
-          <th class="p-2">Username</th>
-          <th class="p-2">Nama Lengkap</th>
-          <th class="p-2">Peran</th>
+        <tr class="border-b bg-slate-100 text-sm text-slate-700">
+          <th class="p-3">Username</th>
+          <th class="p-3">Nama Lengkap</th>
+          <th class="p-3">Peran</th>
         </tr>
       </thead>
       <tbody id="tabelUser" class="text-sm"></tbody>
@@ -44,9 +44,9 @@
       const data = await res.json();
       document.getElementById('tabelUser').innerHTML = data.map(u => `
         <tr class="border-b">
-          <td class="p-2 font-semibold">${u.username}</td>
-          <td class="p-2">${u.nama_lengkap}</td>
-          <td class="p-2"><span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">${u.peran}</span></td>
+          <td class="p-3 font-semibold">${u.username}</td>
+          <td class="p-3">${u.nama_lengkap}</td>
+          <td class="p-3"><span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full font-medium">${u.peran}</span></td>
         </tr>
       `).join('');
     }
