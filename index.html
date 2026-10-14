@@ -112,7 +112,7 @@
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
             <div>
               <h2 class="text-base font-bold text-slate-900">Katalog Produk</h2>
-              <p class="text-xs text-slate-400">Pilih item untuk ditambahkan ke keranjang</p>
+              <p class="text-xs text-slate-400">Ketik pencarian untuk memuat produk secara efisien</p>
             </div>
             <!-- Search Bar Kasir -->
             <div class="relative w-full sm:w-72">
@@ -122,7 +122,11 @@
           </div>
 
           <!-- Product Grid Container (Auto Scroll) -->
-          <div id="produkGrid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3.5 overflow-y-auto pr-1 flex-1"></div>
+          <div id="produkGrid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3.5 overflow-y-auto pr-1 flex-1">
+            <div class="col-span-full py-16 text-center text-slate-400 text-xs">
+              <p>Silakan ketik nama atau SKU barang di kolom pencarian di atas untuk mulai kasir.</p>
+            </div>
+          </div>
         </div>
 
         <!-- Right Column: Cart & Checkout -->
@@ -170,7 +174,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <h2 class="text-lg font-bold text-slate-900">Kelola Master Barang & Stok</h2>
-            <p class="text-xs text-slate-400">Daftar produk terdaftar dalam database</p>
+            <p class="text-xs text-slate-400">Gunakan pencarian untuk menampilkan data barang secara efisien</p>
           </div>
           <div class="flex items-center gap-2 w-full sm:w-auto">
             <input type="text" id="inputSearch" placeholder="Cari nama, SKU, keterangan..." oninput="filterBarang()" class="w-full sm:w-64 px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500">
@@ -195,7 +199,9 @@
                 <th class="p-3.5 text-center">Aksi</th>
               </tr>
             </thead>
-            <tbody id="tabelBarang" class="divide-y divide-slate-100"></tbody>
+            <tbody id="tabelBarang" class="divide-y divide-slate-100">
+              <tr><td colspan="8" class="p-8 text-center text-slate-400">Ketik minimal 2 huruf di kolom pencarian untuk menampilkan data barang.</td></tr>
+            </tbody>
           </table>
         </div>
       </div>
@@ -230,11 +236,11 @@
         <div class="flex justify-between items-center mb-6">
           <div>
             <h2 class="text-lg font-bold text-slate-900">Riwayat Transaksi Penjualan</h2>
-            <p class="text-xs text-slate-400">Daftar faktur transaksi penjualan yang telah diproses</p>
+            <p class="text-xs text-slate-400">Menampilkan 5 transaksi terbaru untuk penghematan database</p>
           </div>
           <button onclick="loadRiwayatTransaksi()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            Refresh
+            Refresh / Muat Terbaru
           </button>
         </div>
 
@@ -261,7 +267,7 @@
         <div class="flex justify-between items-center border-b border-slate-100 pb-4">
           <div>
             <h2 class="text-lg font-bold text-slate-900">Stok Opname & Audit Fisik</h2>
-            <p class="text-xs text-slate-400">Catatan penambahan/koreksi stok fisik di gudang beserta user pelaksana</p>
+            <p class="text-xs text-slate-400">Menampilkan 10 riwayat penambahan stok terbaru</p>
           </div>
           <button onclick="openModal('modalOpname')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition shadow-md shadow-indigo-100">+ Input Restock / Opname</button>
         </div>
@@ -290,8 +296,6 @@
   <!-- ================= MODAL CETAK NOTA / STRUK ================= -->
   <div id="modalNota" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
-      
-      <!-- Area Cetak -->
       <div id="printArea" class="space-y-3 text-xs text-slate-800">
         <div class="text-center border-b border-dashed pb-3">
           <h3 class="font-bold text-sm text-slate-900">POS KASIR RETAIL</h3>
@@ -311,7 +315,6 @@
         <div class="text-center text-[10px] text-slate-400 pt-3 border-t border-dashed">Terima Kasih Atas Kunjungan Anda!</div>
       </div>
 
-      <!-- Action Buttons -->
       <div class="flex gap-2 mt-5">
         <button onclick="window.print()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-1">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
@@ -322,8 +325,7 @@
     </div>
   </div>
 
-  <!-- ================= MODAL konfirm ================= -->
-<!-- ================= MODAL KONFIRMASI / PREVIEW SEBELUM PROSES ================= -->
+  <!-- ================= MODAL KONFIRMASI / PREVIEW SEBELUM PROSES ================= -->
   <div id="modalKonfirmasi" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 space-y-4">
       <div class="text-center border-b border-dashed pb-3">
@@ -338,17 +340,14 @@
         <div class="flex justify-between"><span class="text-slate-500">Kasir:</span><span id="confKasir" class="font-semibold"></span></div>
       </div>
 
-      <!-- Item List Preview -->
       <div id="confItemList" class="space-y-1.5 max-h-40 overflow-y-auto border-b border-dashed pb-3 pr-1"></div>
 
-      <!-- Ringkasan Harga -->
       <div class="space-y-1 text-xs">
         <div class="flex justify-between text-sm font-bold text-slate-900"><span>Total Belanja:</span><span id="confTotal" class="text-indigo-600"></span></div>
         <div class="flex justify-between text-slate-600"><span>Uang Bayar:</span><span id="confBayar"></span></div>
         <div class="flex justify-between text-slate-600 font-semibold"><span>Uang Kembali:</span><span id="confKembali" class="text-emerald-600"></span></div>
       </div>
 
-      <!-- Tombol Aksi Konfirmasi -->
       <div class="flex gap-2 pt-2">
         <button onclick="konfirmasiDanProses()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-semibold shadow-md transition">
           Ya, Proses & Cetak Nota
@@ -359,20 +358,18 @@
       </div>
     </div>
   </div>
-  <!-- ================= MODAL STOK OPNAME ================= -->
+
   <!-- ================= MODAL STOK OPNAME (DENGAN AUTOCOMPLETE SEARCH) ================= -->
   <div id="modalOpname" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
       <h3 class="text-base font-bold text-slate-900 mb-4">Input Stok Masuk / Restock</h3>
       <form id="formOpname" class="space-y-3.5 text-xs">
         
-        <!-- Input dengan Autocomplete Search -->
         <div class="relative">
           <label class="block font-semibold text-slate-600 mb-1">Cari & Pilih Produk</label>
           <input type="hidden" id="op_barang_id" required>
           <input type="text" id="op_search_input" placeholder="Ketik nama atau SKU barang..." oninput="filterDropdownOpname()" autocomplete="off" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50">
           
-          <!-- Dropdown Hasil Filter -->
           <div id="op_dropdown_list" class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-48 overflow-y-auto hidden z-50 divide-y divide-slate-100"></div>
         </div>
 
@@ -483,7 +480,7 @@
     </div>
   </div>
 
-  <!-- ================= JAVASCRIPT APLIKASI UTAMA ================= -->
+  <!-- ================= JAVASCRIPT APLIKASI UTAMA (OPTIMIZED & LAZY LOAD) ================= -->
   <script>
     let currentUser = JSON.parse(localStorage.getItem('user'));
     let produkList = [];
@@ -519,7 +516,6 @@
 
     function logout() { localStorage.clear(); window.location.reload(); }
 
-    // Navigasi Tab
     function switchTab(tabName) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.getElementById(`tab-${tabName}`).classList.remove('hidden');
@@ -535,30 +531,33 @@
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
     async function loadAllData() {
-      loadProduk();
       loadKategoriAndSub();
       loadRiwayatTransaksi();
       loadStokOpname();
     }
 
-    // --- 1. PRODUK & KASIR ---
-    async function loadProduk() {
+    // --- 1. PRODUK & KASIR (LAZY LOAD & ON-DEMAND SEARCH) ---
+    async function filterProdukKasir() {
+      const kw = document.getElementById('inputSearchKasir').value.toLowerCase().trim();
+      const grid = document.getElementById('produkGrid');
+
+      if (!kw || kw.length < 2) {
+        grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs">Ketik minimal 2 huruf pada pencarian untuk memuat produk...</div>`;
+        return;
+      }
+
       try {
-        const res = await fetch('/api/barang');
+        const res = await fetch(`/api/barang?search=${encodeURIComponent(kw)}`);
         produkList = await res.json();
         renderGridKasir(produkList);
-        renderTabelBarang(produkList);
-
-        // Populate dropdown stok opname
-        document.getElementById('op_barang').innerHTML = `<option value="">Pilih Barang</option>` + produkList.map(p => `<option value="${p.id}">${p.nama_barang} (Stok: ${p.stok})</option>`).join('');
       } catch (err) {
-        console.error('Gagal mengambil data barang:', err);
+        console.error('Gagal mengambil data produk:', err);
       }
     }
 
     function renderGridKasir(data) {
       const grid = document.getElementById('produkGrid');
-      if (!data || !data.length) { grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs">Produk kosong</div>`; return; }
+      if (!data || !data.length) { grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs">Produk tidak ditemukan</div>`; return; }
       grid.innerHTML = data.map(p => `
         <div onclick="${p.stok > 0 ? `tambahKeranjang('${p.id}')` : ''}" class="p-3 bg-white border border-slate-200/80 hover:border-indigo-500 rounded-xl cursor-pointer transition flex flex-col justify-between shadow-2xs hover:shadow-md group ${p.stok <= 0 ? 'opacity-50 bg-slate-50 cursor-not-allowed' : ''}">
           <div>
@@ -575,11 +574,6 @@
           </div>
         </div>
       `).join('');
-    }
-
-    function filterProdukKasir() {
-      const kw = document.getElementById('inputSearchKasir').value.toLowerCase().trim();
-      renderGridKasir(produkList.filter(p => p.nama_barang.toLowerCase().includes(kw) || p.kode_sku.toLowerCase().includes(kw) || (p.keterangan && p.keterangan.toLowerCase().includes(kw))));
     }
 
     function tambahKeranjang(id) {
@@ -652,7 +646,7 @@
       }
     }
 
-    let pendingTransaksiData = null; // Menyimpan data sementara sebelum dikonfirmasi
+    let pendingTransaksiData = null;
 
     function prosesBayar() {
       if (!keranjang.length) return alert('Keranjang belanja kosong!');
@@ -666,19 +660,17 @@
       const nomorFaktur = 'INV-' + Date.now();
       const kembalian = bayar - total;
 
-      // 1. Simpan data ke variabel sementara (Belum dikirim ke API database)
       pendingTransaksiData = {
         nomor_faktur: nomorFaktur,
         pengguna_id: currentUser.id,
         jumlah_bayar: bayar,
         kembalian: kembalian,
         total_belanja: total,
-        tanggal: new Date().toLocaleDateString('id-ID'),
+        tanggal: new Date().toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }),
         kasir: currentUser.nama,
         items: [...keranjang]
       };
 
-      // 2. Tampilkan Modal Preview / Konfirmasi Detail Belanja
       document.getElementById('confFaktur').innerText = nomorFaktur;
       document.getElementById('confTanggal').innerText = pendingTransaksiData.tanggal;
       document.getElementById('confKasir').innerText = pendingTransaksiData.kasir;
@@ -696,7 +688,6 @@
       openModal('modalKonfirmasi');
     }
 
-    // 3. Eksekusi Nyata ke Database Hanya Saat Tombol Konfirmasi Ditekan
     async function konfirmasiDanProses() {
       if (!pendingTransaksiData) return;
 
@@ -715,7 +706,6 @@
         if (res.ok) {
           closeModal('modalKonfirmasi');
           
-          // Pindahkan data ke modal cetak nota akhir
           tampilkanNota(
             pendingTransaksiData.nomor_faktur,
             pendingTransaksiData.tanggal,
@@ -726,11 +716,9 @@
             pendingTransaksiData.items
           );
 
-          // Bersihkan keranjang
           keranjang = [];
           document.getElementById('inputBayar').value = '';
           renderKeranjang();
-          loadProduk();
           pendingTransaksiData = null;
         } else {
           const d = await res.json();
@@ -743,7 +731,7 @@
 
     function tampilkanNota(faktur, tanggal, kasir, total, bayar, kembali, items) {
       document.getElementById('notaFaktur').innerText = faktur;
-      document.getElementById('notaTanggal').innerText = tanggal;
+      document.getElementById('notaTanggal').innerText = `${tanggal} ${new Date().toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' })}`;
       document.getElementById('notaKasir').innerText = kasir;
       document.getElementById('notaTotal').innerText = 'Rp ' + total.toLocaleString();
       document.getElementById('notaBayar').innerText = 'Rp ' + bayar.toLocaleString();
@@ -757,11 +745,12 @@
       openModal('modalNota');
     }
 
-    // --- 2. RIWAYAT TRANSAKSI & CETAK ULANG NOTA ---
+    // --- 2. RIWAYAT TRANSAKSI (HANYA 5 TERBARU) ---
     async function loadRiwayatTransaksi() {
       try {
         const res = await fetch('/api/transaksi');
-        riwayatTransaksiList = await res.json();
+        const allData = await res.json();
+        riwayatTransaksiList = allData.slice(0, 5); // Ambil 5 terbaru untuk hemat kuota baca
         
         const tbody = document.getElementById('tabelRiwayat');
         if (!riwayatTransaksiList.length) {
@@ -772,14 +761,13 @@
         tbody.innerHTML = riwayatTransaksiList.map(t => `
           <tr class="hover:bg-slate-50 transition">
             <td class="p-3.5 font-mono font-bold text-slate-700">${t.nomor_faktur}</td>
-            <td class="p-3.5 text-slate-500">${new Date(t.dibuat_pada).toLocaleString('id-ID')}</td>
+            <td class="p-3.5 text-slate-500">${new Date(t.dibuat_pada).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}</td>
             <td class="p-3.5 font-semibold text-slate-800">${t.nama_kasir || 'Kasir'}</td>
             <td class="p-3.5 font-bold text-indigo-600">Rp ${Number(t.total_belanja).toLocaleString()}</td>
             <td class="p-3.5 font-semibold text-emerald-600">Rp ${Number(t.total_laba || 0).toLocaleString()}</td>
             <td class="p-3.5 text-slate-600">Rp ${Number(t.jumlah_bayar).toLocaleString()} / <span class="text-slate-400">Rp ${Number(t.kembalian).toLocaleString()}</span></td>
             <td class="p-3.5 text-center">
               <button onclick="cetakUlangNota('${t.id}')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-semibold rounded-lg transition text-xs flex items-center gap-1 mx-auto">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                 Cetak Ulang
               </button>
             </td>
@@ -794,11 +782,10 @@
       const t = riwayatTransaksiList.find(x => x.id === transaksiId);
       if (!t) return alert('Data transaksi tidak ditemukan');
 
-      // Gunakan items default dummy/ringkas jika detail tidak ter-load
       const items = [{ nama_barang: 'Item Transaksi ' + t.nomor_faktur, jumlah: 1, harga_jual: t.total_belanja }];
       tampilkanNota(
         t.nomor_faktur,
-        new Date(t.dibuat_pada).toLocaleDateString('id-ID'),
+        new Date(t.dibuat_pada).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }),
         t.nama_kasir || 'Kasir',
         t.total_belanja,
         t.jumlah_bayar,
@@ -807,21 +794,22 @@
       );
     }
 
-    // --- 3. STOK OPNAME & RIWAYAT STOK ---
+    // --- 3. STOK OPNAME (HANYA 10 TERBARU) ---
     async function loadStokOpname() {
       try {
         const res = await fetch('/api/stok');
         const data = await res.json();
+        const limitData = data.slice(0, 10); // Ambil 10 terbaru
         
         const tbody = document.getElementById('tabelOpname');
-        if (!data.length) {
+        if (!limitData.length) {
           tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">Belum ada data stok opname</td></tr>`;
           return;
         }
 
-        tbody.innerHTML = data.map(s => `
+        tbody.innerHTML = limitData.map(s => `
           <tr class="hover:bg-slate-50 transition">
-            <td class="p-3.5 text-slate-500">${s.dibuat_pada ? new Date(s.dibuat_pada).toLocaleString('id-ID') : '-'}</td>
+            <td class="p-3.5 text-slate-500">${s.dibuat_pada ? new Date(s.dibuat_pada).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) : '-'}</td>
             <td class="p-3.5 font-bold text-slate-800">${s.nama_barang}</td>
             <td class="p-3.5 font-mono text-slate-600">${s.kode_sku}</td>
             <td class="p-3.5 font-bold text-emerald-600">+${s.jumlah_masuk}</td>
@@ -835,38 +823,29 @@
       }
     }
 
-    document.getElementById('formOpname').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const body = {
-        barang_id: document.getElementById('op_barang').value,
-        pengguna_id: currentUser.id,
-        jumlah_masuk: Number(document.getElementById('op_jumlah').value),
-        harga_beli_per_unit: Number(document.getElementById('op_harga').value),
-        catatan: document.getElementById('op_catatan').value
-      };
+    // --- 4. MASTER BARANG & CRUD (ON-DEMAND SEARCH) ---
+    async function filterBarang() {
+      const kw = document.getElementById('inputSearch').value.toLowerCase().trim();
+      const tbody = document.getElementById('tabelBarang');
 
-      const res = await fetch('/api/stok', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-
-      if (res.ok) {
-        closeModal('modalOpname');
-        document.getElementById('formOpname').reset();
-        loadAllData();
-        alert('Stok opname berhasil dicatat & stok barang diperbarui!');
-      } else {
-        const d = await res.json();
-        alert(d.message || 'Gagal menyimpan stok opname');
+      if (!kw || kw.length < 2) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400">Ketik minimal 2 huruf pada pencarian untuk menampilkan data barang.</td></tr>`;
+        return;
       }
-    });
 
-    // --- 4. TABEL MASTER BARANG CRUD ---
+      try {
+        const res = await fetch(`/api/barang?search=${encodeURIComponent(kw)}`);
+        produkList = await res.json();
+        renderTabelBarang(produkList);
+      } catch (err) {
+        console.error('Gagal memuat barang:', err);
+      }
+    }
+
     function renderTabelBarang(data) {
       const tbody = document.getElementById('tabelBarang');
       if (!data || !data.length) {
-        tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400">Belum ada data barang</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400">Data barang tidak ditemukan</td></tr>`;
         return;
       }
       tbody.innerHTML = data.map(b => `
@@ -884,11 +863,6 @@
           </td>
         </tr>
       `).join('');
-    }
-
-    function filterBarang() {
-      const kw = document.getElementById('inputSearch').value.toLowerCase().trim();
-      renderTabelBarang(produkList.filter(b => b.nama_barang.toLowerCase().includes(kw) || b.kode_sku.toLowerCase().includes(kw) || (b.keterangan && b.keterangan.toLowerCase().includes(kw))));
     }
 
     function bukaModalBarang() {
@@ -935,7 +909,7 @@
         body: JSON.stringify(body)
       });
 
-      if (res.ok) { closeModal('modalBarang'); loadProduk(); }
+      if (res.ok) { closeModal('modalBarang'); alert('Data barang berhasil disimpan!'); }
       else { const d = await res.json(); alert(d.message || 'Gagal menyimpan barang'); }
     });
 
@@ -946,7 +920,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id })
       });
-      if (res.ok) loadProduk();
+      if (res.ok) alert('Barang berhasil dihapus');
     }
 
     // --- 5. KATEGORI & SUB-KATEGORI ---
@@ -996,38 +970,41 @@
       await fetch('/api/kategori', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tipe, id }) });
       loadKategoriAndSub();
     }
-  // --- LOGIKA AUTOCOMPLETE SEARCH STOK OPNAME ---
-    function filterDropdownOpname() {
+
+    // --- LOGIKA AUTOCOMPLETE SEARCH STOK OPNAME ---
+    async function filterDropdownOpname() {
       const keyword = document.getElementById('op_search_input').value.toLowerCase().trim();
       const dropdown = document.getElementById('op_dropdown_list');
       
-      if (!keyword) {
+      if (!keyword || keyword.length < 2) {
         dropdown.classList.add('hidden');
         return;
       }
 
-      const filtered = produkList.filter(p => 
-        p.nama_barang.toLowerCase().includes(keyword) || 
-        p.kode_sku.toLowerCase().includes(keyword)
-      );
+      try {
+        const res = await fetch(`/api/barang?search=${encodeURIComponent(keyword)}`);
+        const filtered = await res.json();
 
-      if (filtered.length === 0) {
-        dropdown.innerHTML = `<div class="p-3 text-slate-400 text-center">Barang tidak ditemukan</div>`;
-        dropdown.classList.remove('hidden');
-        return;
-      }
+        if (!filtered.length) {
+          dropdown.innerHTML = `<div class="p-3 text-slate-400 text-center">Barang tidak ditemukan</div>`;
+          dropdown.classList.remove('hidden');
+          return;
+        }
 
-      dropdown.innerHTML = filtered.map(p => `
-        <div onclick="pilihBarangOpname('${p.id}', '${p.nama_barang.replace(/'/g, "\\'")}', '${p.kode_sku}')" class="p-2.5 hover:bg-indigo-50 cursor-pointer transition flex justify-between items-center text-xs">
-          <div>
-            <span class="font-bold text-slate-800 block">${p.nama_barang}</span>
-            <span class="text-[10px] text-slate-400 font-mono">SKU: ${p.kode_sku}</span>
+        dropdown.innerHTML = filtered.map(p => `
+          <div onclick="pilihBarangOpname('${p.id}', '${p.nama_barang.replace(/'/g, "\\'")}', '${p.kode_sku}')" class="p-2.5 hover:bg-indigo-50 cursor-pointer transition flex justify-between items-center text-xs">
+            <div>
+              <span class="font-bold text-slate-800 block">${p.nama_barang}</span>
+              <span class="text-[10px] text-slate-400 font-mono">SKU: ${p.kode_sku}</span>
+            </div>
+            <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Stok: ${p.stok}</span>
           </div>
-          <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Stok: ${p.stok}</span>
-        </div>
-      `).join('');
+        `).join('');
 
-      dropdown.classList.remove('hidden');
+        dropdown.classList.remove('hidden');
+      } catch (err) {
+        console.error('Gagal mencari barang:', err);
+      }
     }
 
     function pilihBarangOpname(id, nama, sku) {
@@ -1036,7 +1013,6 @@
       document.getElementById('op_dropdown_list').classList.add('hidden');
     }
 
-    // Tutup dropdown jika klik di luar area input
     window.addEventListener('click', function(e) {
       const input = document.getElementById('op_search_input');
       const dropdown = document.getElementById('op_dropdown_list');
@@ -1045,15 +1021,12 @@
       }
     });
 
-  document.getElementById('formOpname').addEventListener('submit', async (e) => {
+    document.getElementById('formOpname').addEventListener('submit', async (e) => {
       e.preventDefault();
       const barangId = document.getElementById('op_barang_id').value;
-      const searchText = document.getElementById('op_search_input').value;
 
-      // Validasi ketat: Pastikan ID terisi dan nama barang cocok dengan daftar produk
-      const valid Barang = produkList.find(p => p.id === barangId);
-      if (!barangId || !validBarang) {
-        alert('Peringatan: Nama barang tidak valid atau diketik asal-asalan! Silakan pilih dari daftar autocomplete.');
+      if (!barangId) {
+        alert('Peringatan: Silakan pilih produk yang valid dari daftar pencarian autocomplete!');
         document.getElementById('op_search_input').focus();
         return;
       }
@@ -1076,14 +1049,13 @@
         closeModal('modalOpname');
         document.getElementById('formOpname').reset();
         document.getElementById('op_barang_id').value = '';
-        loadAllData();
+        loadStokOpname();
         alert('Stok opname berhasil dicatat & stok barang diperbarui!');
       } else {
         const d = await res.json();
         alert(d.message || 'Gagal menyimpan stok opname');
       }
     });
-    
   </script>
 </body>
 </html>
