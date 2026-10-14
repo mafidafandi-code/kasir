@@ -1,32 +1,29 @@
 import { db } from '../lib/turso.js';
 
 export default async function handler(req, res) {
-  // Ambil daftar pengguna
   if (req.method === 'GET') {
     try {
-      const result = await db.execute('SELECT id, username, nama_lengkap, peran FROM pengguna ORDER BY dibuat_pada DESC');
+      const result = await db.execute('SELECT id, username, nama_lengkap, peran, dibuat_pada FROM pengguna ORDER BY dibuat_pada DESC');
       return res.status(200).json(result.rows);
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }
   }
 
-  // Tambah pengguna baru
   if (req.method === 'POST') {
-    const { username, password, nama, role } = req.body;
-    
-    // Generate string ID acak sederhana untuk kolom id (TEXT)
-    const newId = 'usr_' + Date.now();
-    const dibuatPada = Date.now(); // Epoch timestamp
+    const { username, password, nama_lengkap, peran } = req.body;
+    const id = 'usr_' + Date.now();
 
     try {
       await db.execute({
-        sql: `INSERT INTO pengguna (id, username, password, nama_lengkap, peran, dibuat_pada) 
-              VALUES (?, ?, ?, ?, ?, ?)`,
-        args: [newId, username, password, nama, role || 'kasir', dibuatPada]
+        sql: `INSERT INTO pengguna (id, username, password, nama_lengkap, peran) VALUES (?, ?, ?, ?, ?)`,
+        args: [id, username, password, nama_lengkap, peran || 'kasir']
       });
-      return res.status(201).json({ message: 'User berhasil ditambahkan' });
+      return res.status(201).json({ message: 'Pengguna berhasil ditambahkan' });
     } catch (error) {
+      if (error.message.includes('UNIQUE constraint failed')) {
+        return res.status(400).json({ message: 'Username sudah digunakan!' });
+      }
       return res.status(500).json({ message: error.message });
     }
   }
