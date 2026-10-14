@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola Kategori</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen p-6">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-sm space-y-6">
+    <div class="flex justify-between items-center">
+      <h1 class="text-xl font-bold">Kelola Kategori & Sub-Kategori</h1>
+      <a href="/dashboard.html" class="text-blue-600 hover:underline">← Kembali ke Kasir</a>
+    </div>
+
+    <!-- Form Tambah Kategori -->
+    <form id="formKategori" class="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-6">
+      <input type="text" id="namaKategori" placeholder="Nama Kategori Utama" required class="border p-2 rounded-lg outline-none md:col-span-2">
+      <button type="submit" class="bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700">Tambah Kategori</button>
+    </form>
+
+    <!-- Form Tambah Sub-Kategori -->
+    <form id="formSub" class="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-6">
+      <select id="selectKategori" required class="border p-2 rounded-lg outline-none"></select>
+      <input type="text" id="namaSub" placeholder="Nama Sub-Kategori" required class="border p-2 rounded-lg outline-none">
+      <button type="submit" class="bg-emerald-600 text-white font-bold py-2 rounded-lg hover:bg-emerald-700">Tambah Sub-Kategori</button>
+    </form>
+
+    <!-- Daftar Kategori & Sub -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="font-bold mb-2">Daftar Kategori</h3>
+        <ul id="listKategori" class="border rounded-lg divide-y text-sm"></ul>
+      </div>
+      <div>
+        <h3 class="font-bold mb-2">Daftar Sub-Kategori</h3>
+        <ul id="listSub" class="border rounded-lg divide-y text-sm"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function loadData() {
+      const res = await fetch('/api/kategori');
+      const data = await res.json();
+      
+      // Select dropdown
+      document.getElementById('selectKategori').innerHTML = `<option value="">Pilih Kategori</option>` + data.kategori.map(k => `
+        <option value="${k.id}">${k.nama_kategori}</option>
+      `).join('');
+
+      // List Kategori
+      document.getElementById('listKategori').innerHTML = data.kategori.map(k => `
+        <li class="p-2">${k.nama_kategori}</li>
+      `).join('');
+
+      // List Sub-Kategori
+      document.getElementById('listSub').innerHTML = data.sub_kategori.map(s => `
+        <li class="p-2">${s.nama_sub_kategori}</li>
+      `).join('');
+    }
+
+    document.getElementById('formKategori').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nama = document.getElementById('namaKategori').value;
+      const res = await fetch('/api/kategori', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipe: 'kategori', nama })
+      });
+      if (res.ok) {
+        document.getElementById('formKategori').reset();
+        loadData();
+      }
+    });
+
+    document.getElementById('formSub').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const kategori_id = document.getElementById('selectKategori').value;
+      const nama = document.getElementById('namaSub').value;
+      const res = await fetch('/api/kategori', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipe: 'sub', kategori_id, nama })
+      });
+      if (res.ok) {
+        document.getElementById('formSub').reset();
+        loadData();
+      }
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
