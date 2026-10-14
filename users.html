@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola User / Kasir</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen p-6">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-sm">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-xl font-bold">Kelola User Kasir</h1>
+      <a href="/dashboard.html" class="text-blue-600 hover:underline">← Kembali ke Kasir</a>
+    </div>
+
+    <!-- Form Tambah User -->
+    <form id="formUser" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <input type="text" id="username" placeholder="Username" required class="border p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+      <input type="password" id="password" placeholder="Password" required class="border p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+      <input type="text" id="nama" placeholder="Nama Lengkap" required class="border p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+      <select id="role" class="border p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="kasir">Kasir</option>
+        <option value="admin">Admin</option>
+      </select>
+      <button type="submit" class="md:col-span-4 bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition">Tambah User Baru</button>
+    </form>
+
+    <!-- Tabel Daftar User -->
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="border-b bg-slate-50">
+          <th class="p-2">ID</th>
+          <th class="p-2">Username</th>
+          <th class="p-2">Nama</th>
+          <th class="p-2">Role</th>
+        </tr>
+      </thead>
+      <tbody id="tabelUser"></tbody>
+    </table>
+  </div>
+
+  <script>
+    async function loadUsers() {
+      const res = await fetch('/api/users');
+      const data = await res.json();
+      document.getElementById('tabelUser').innerHTML = data.map(u => `
+        <tr class="border-b">
+          <td class="p-2">${u.id}</td>
+          <td class="p-2 font-semibold">${u.username}</td>
+          <td class="p-2">${u.nama}</td>
+          <td class="p-2"><span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">${u.role}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('formUser').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = {
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value,
+        nama: document.getElementById('nama').value,
+        role: document.getElementById('role').value
+      };
+
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById('formUser').reset();
+        loadUsers();
+      } else {
+        alert(data.message);
+      }
+    });
+
+    loadUsers();
+  </script>
+</body>
+</html>
