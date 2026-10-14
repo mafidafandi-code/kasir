@@ -1048,8 +1048,13 @@
   document.getElementById('formOpname').addEventListener('submit', async (e) => {
       e.preventDefault();
       const barangId = document.getElementById('op_barang_id').value;
-      if (!barangId) {
-        alert('Silakan pilih produk terlebih dahulu dari daftar pencarian!');
+      const searchText = document.getElementById('op_search_input').value;
+
+      // Validasi ketat: Pastikan ID terisi dan nama barang cocok dengan daftar produk
+      const valid Barang = produkList.find(p => p.id === barangId);
+      if (!barangId || !validBarang) {
+        alert('Peringatan: Nama barang tidak valid atau diketik asal-asalan! Silakan pilih dari daftar autocomplete.');
+        document.getElementById('op_search_input').focus();
         return;
       }
 
