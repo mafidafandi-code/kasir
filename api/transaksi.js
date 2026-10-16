@@ -1,22 +1,48 @@
 import { db } from '../lib/turso.js';
 
 export default async function handler(req, res) {
-  // 1. Ambil Riwayat Transaksi (GET)
+  // 1. Ambil Riwayat Transaksi (GET) - Dioptimalkan dengan Limit 10 & Filter Pencarian/Tanggal
   if (req.method === 'GET') {
     try {
-      const result = await db.execute(`
+      const url = new URL(req.url, `http://${req.headers.host}`);
+      const search = url.searchParams.get('search');
+      const tanggal = url.searchParams.get('tanggal');
+
+      let query = `
         SELECT t.*, p.nama_lengkap as nama_kasir 
         FROM transaksi t 
-        LEFT JOIN pengguna p ON t.pengguna_id = p.id 
-        ORDER BY t.dibuat_pada DESC LIMIT 100
-      `);
+        LEFT JOIN pengguna p ON t.pengguna_id = p.id
+      `;
+
+      const conditions = [];
+      const args = [];
+
+      if (tanggal) {
+        conditions.push(`DATE(t.dibuat_pada) = ?`);
+        args.push(tanggal);
+      }
+
+      if (search && search.trim() !== '') {
+        conditions.push(`(t.nomor_faktur LIKE ? OR p.nama_lengkap LIKE ?)`);
+        const kw = `%${search.trim()}%`;
+        args.push(kw, kw);
+      }
+
+      if (conditions.length > 0) {
+        query += ` WHERE ` + conditions.join(' AND ');
+      }
+
+      // Default ambil 10 transaksi terbaru agar hemat kuota baca, kecuali jika sedang melakukan filter/pencarian spesifik
+      query += ` ORDER BY t.dibuat_pada DESC LIMIT ${search || tanggal ? 50 : 10}`;
+
+      const result = await db.execute({ sql: query, args });
       return res.status(200).json(result.rows);
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }
   }
 
-  // 2. Proses Transaksi Baru (POST)
+  // 2. Proses Transaksi Baru (POST) - LOGIKA ASLI DIKERJAKAN UTUH TANPA PERUBAHAN
   if (req.method === 'POST') {
     const { nomor_faktur, pengguna_id, jumlah_bayar, items } = req.body;
 
@@ -39,10 +65,10 @@ export default async function handler(req, res) {
 
       const transaksiId = 'trx_' + Date.now();
 
-      // Simpan Header Transaksi
+      // Simpan Header Transaksi (Menggunakan Waktu Indonesia UTC+7)
       await db.execute({
-        sql: `INSERT INTO transaksi (id, nomor_faktur, pengguna_id, total_belanja, total_laba, metode_pembayaran, jumlah_bayar, kembalian) 
-              VALUES (?, ?, ?, ?, ?, 'tunai', ?, ?)`,
+        sql: `INSERT INTO transaksi (id, nomor_faktur, pengguna_id, total_belanja, total_laba, metode_pembayaran, jumlah_bayar, kembalian, dibuat_pada) 
+              VALUES (?, ?, ?, ?, ?, 'tunai', ?, ?, datetime('now', '+7 hours'))`,
         args: [transaksiId, nomor_faktur, pengguna_id, total_belanja, total_laba, jumlah_bayar, kembalian]
       });
 
