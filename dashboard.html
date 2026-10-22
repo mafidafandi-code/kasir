@@ -161,38 +161,23 @@
       </div>
     </div>
 
-    <!-- BARIS 3: GRAFIK TREND TRANSAKSI & METODE PEMBAYARAN -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      <!-- Line Chart: Trend Penjualan -->
-      <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 flex flex-col">
-        <div class="flex justify-between items-center mb-4">
-          <div>
-            <h3 class="font-bold text-slate-900 text-sm">Tren Pendapatan & Transaksi</h3>
-            <p class="text-xs text-slate-400">Pergerakan omzet harian dari database Turso</p>
-          </div>
-          <span class="text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg">Database Linked</span>
-        </div>
-        <div class="relative flex-1 w-full h-72">
-          <canvas id="lineChartTrend"></canvas>
-        </div>
-      </div>
-
-      <!-- Doughnut Chart: Analisis Metode Pembayaran -->
-      <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 flex flex-col justify-between">
+    <!-- BARIS 3: GRAFIK TREND TRANSAKSI (FULL WIDTH KARENA METODE PEMBAYARAN DIHILANGKAN) -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 flex flex-col">
+      <div class="flex justify-between items-center mb-4">
         <div>
-          <h3 class="font-bold text-slate-900 text-sm">Metode Pembayaran</h3>
-          <p class="text-xs text-slate-400">Proporsi jenis pembayaran transaksi</p>
+          <h3 class="font-bold text-slate-900 text-sm">Tren Pendapatan & Transaksi</h3>
+          <p class="text-xs text-slate-400">Pergerakan omzet harian dari database Turso berdasarkan rentang waktu</p>
         </div>
-        <div class="relative w-full h-56 my-auto flex items-center justify-center">
-          <canvas id="piePaymentChart"></canvas>
-        </div>
-        <div id="paymentLegend" class="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100 text-[11px]"></div>
+        <span class="text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg">Database Linked</span>
+      </div>
+      <div class="relative w-full h-80">
+        <canvas id="lineChartTrend"></canvas>
       </div>
     </div>
 
     <!-- BARIS 4: TOP PRODUK TERLARIS & KATEGORI -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      <!-- Horizontal Bar: Top 10 Produk Terlaris -->
+      <!-- Horizontal Bar: Top 5 Produk Terlaris -->
       <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 flex flex-col">
         <div class="flex justify-between items-center mb-4">
           <div>
@@ -209,7 +194,7 @@
       <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 flex flex-col">
         <div>
           <h3 class="font-bold text-slate-900 text-sm">Kontribusi Kategori Barang</h3>
-          <p class="text-xs text-slate-400">Proporsi stok / produk per kategori</p>
+          <p class="text-xs text-slate-400">Proporsi produk per kategori</p>
         </div>
         <div class="relative flex-1 w-full h-72 mt-3">
           <canvas id="barKategoriChart"></canvas>
@@ -217,7 +202,7 @@
       </div>
     </div>
 
-    <!-- BARIS 5: LOW STOCK ALERT & TRANSAKSI TERBARU (DARI DATABASE) -->
+    <!-- BARIS 5: LOW STOCK ALERT & TRANSAKSI TERBARU -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-6">
       <!-- Low Stock Alert Widget -->
       <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 flex flex-col">
@@ -251,7 +236,7 @@
         <div class="flex justify-between items-center mb-3">
           <div>
             <h3 class="font-bold text-slate-900 text-sm">Transaksi Terbaru (Recent Transactions)</h3>
-            <p class="text-xs text-slate-400">5 Struk transaksi penjualan terakhir</p>
+            <p class="text-xs text-slate-400">Struk transaksi penjualan terakhir sesuai filter</p>
           </div>
           <a href="/index.html#tab-riwayat" class="text-xs text-indigo-600 font-semibold hover:underline">Lihat Semua →</a>
         </div>
@@ -285,7 +270,7 @@
     }
 
     // Variabel Global Instance Chart.js
-    let chartTrend, chartPayment, chartTopProduk, chartKategori;
+    let chartTrend, chartTopProduk, chartKategori;
 
     function ubahRentangWaktu() {
       const val = document.getElementById('filterTimeRange').value;
@@ -356,7 +341,7 @@
             </tr>
           `).join('');
         } else {
-          tbodyTx.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada transaksi recorded</td></tr>`;
+          tbodyTx.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada transaksi pada rentang waktu ini</td></tr>`;
         }
 
         // 4. Update Render Chart.js
@@ -370,8 +355,8 @@
     // --- RENDER GRAFIK CHART.JS MENGGUNAKAN DATA REAL DATABASE ---
     function renderCharts(data) {
       // Grafik 1: Line Chart (Trend Omzet)
-      const trendLabels = data.trend ? data.trend.map(t => t.tanggal) : ['No Data'];
-      const trendValues = data.trend ? data.trend.map(t => t.omzet) : [0];
+      const trendLabels = data.trend && data.trend.length > 0 ? data.trend.map(t => t.tanggal) : ['No Data'];
+      const trendValues = data.trend && data.trend.length > 0 ? data.trend.map(t => t.omzet) : [0];
 
       if (chartTrend) chartTrend.destroy();
       chartTrend = new Chart(document.getElementById('lineChartTrend').getContext('2d'), {
@@ -399,46 +384,9 @@
         }
       });
 
-      // Grafik 2: Doughnut Chart (Metode Pembayaran)
-      const payLabels = data.payment_methods ? data.payment_methods.map(p => p.metode_pembayaran.toUpperCase()) : ['TUNAI'];
-      const payValues = data.payment_methods ? data.payment_methods.map(p => p.jumlah) : [1];
-
-      if (chartPayment) chartPayment.destroy();
-      chartPayment = new Chart(document.getElementById('piePaymentChart').getContext('2d'), {
-        type: 'doughnut',
-        data: {
-          labels: payLabels,
-          datasets: [{
-            data: payValues,
-            backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#8b5cf6'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          cutout: '70%'
-        }
-      });
-
-      // Update Legend Payment Manual
-      const legendEl = document.getElementById('paymentLegend');
-      if (data.payment_methods && data.payment_methods.length > 0) {
-        const colors = ['#4f46e5', '#10b981', '#f59e0b', '#8b5cf6'];
-        legendEl.innerHTML = data.payment_methods.map((p, idx) => `
-          <div class="flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${colors[idx % colors.length]}"></span>
-            <span class="text-slate-600 font-medium">${p.metode_pembayaran.toUpperCase()} (${p.jumlah})</span>
-          </div>
-        `).join('');
-      } else {
-        legendEl.innerHTML = `<span class="text-slate-400 col-span-2 text-center">Belum ada data</span>`;
-      }
-
-      // Grafik 3: Horizontal Bar Chart (Top Produk Terlaris)
-      const topLabels = data.top_produk ? data.top_produk.map(p => p.nama_barang) : ['Belum ada transaksi'];
-      const topValues = data.top_produk ? data.top_produk.map(p => p.total_terjual) : [0];
+      // Grafik 2: Horizontal Bar Chart (Top Produk Terlaris)
+      const topLabels = data.top_produk && data.top_produk.length > 0 ? data.top_produk.map(p => p.nama_barang) : ['Belum ada transaksi'];
+      const topValues = data.top_produk && data.top_produk.length > 0 ? data.top_produk.map(p => p.total_terjual) : [0];
 
       if (chartTopProduk) chartTopProduk.destroy();
       chartTopProduk = new Chart(document.getElementById('barTopProduk').getContext('2d'), {
@@ -464,9 +412,9 @@
         }
       });
 
-      // Grafik 4: Bar Chart (Kontribusi Kategori)
-      const katLabels = data.kategori ? data.kategori.map(k => k.nama_kategori || 'Tanpa Kategori') : ['Umum'];
-      const katValues = data.kategori ? data.kategori.map(k => k.total_produk) : [0];
+      // Grafik 3: Bar Chart (Kontribusi Kategori)
+      const katLabels = data.kategori && data.kategori.length > 0 ? data.kategori.map(k => k.nama_kategori || 'Tanpa Kategori') : ['Umum'];
+      const katValues = data.kategori && data.kategori.length > 0 ? data.kategori.map(k => k.total_produk) : [0];
 
       if (chartKategori) chartKategori.destroy();
       chartKategori = new Chart(document.getElementById('barKategoriChart').getContext('2d'), {
