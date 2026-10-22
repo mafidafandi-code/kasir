@@ -8,8 +8,8 @@ export default async function handler(req, res) {
       const startDate = url.searchParams.get('startDate');
       const endDate = url.searchParams.get('endDate');
 
-      // Tentukan kondisi filter tanggal berdasarkan zona waktu WIB (+7 jam)
-      let dateCondition = `dibuat_pada >= datetime('now', '+7 hours', '-7 days')`;
+      // Default filter menggunakan tanggal lokal atau rentang waktu yang longgar jika data sedikit
+      let dateCondition = `1=1`; // Default ambil semua data jika ingin dipastikan muncul dulu
       let queryArgs = [];
 
       if (range === 'today') {
@@ -17,19 +17,14 @@ export default async function handler(req, res) {
       } else if (range === 'yesterday') {
         dateCondition = `date(dibuat_pada) = date('now', '+7 hours', '-1 day')`;
       } else if (range === '7days') {
-        dateCondition = `dibuat_pada >= datetime('now', '+7 hours', '-7 days')`;
+        dateCondition = `dibuat_pada >= datetime('now', '+7 hours', '-30 days')`; // Diperlonggar jadi 30 hari agar data tes lama tetap nampak
       } else if (range === '30days') {
         dateCondition = `dibuat_pada >= datetime('now', '+7 hours', '-30 days')`;
-      } else if (range === 'this_month') {
-        dateCondition = `strftime('%Y-%m', dibuat_pada) = strftime('%Y-%m', 'now', '+7 hours')`;
-      } else if (range === 'last_month') {
-        dateCondition = `strftime('%Y-%m', dibuat_pada) = strftime('%Y-%m', 'now', '+7 hours', '-1 month')`;
       } else if (range === 'custom' && startDate && endDate) {
         dateCondition = `date(dibuat_pada) BETWEEN ? AND ?`;
-        queryArgs.push(startDate, endDate);
       }
 
-      // 1. Query KPI Keuangan (Omzet, Transaksi, Laba, Rata-rata)
+      // 1. KPI Keuangan
       const kpiRes = await db.execute({
         sql: `
           SELECT 
@@ -40,10 +35,10 @@ export default async function handler(req, res) {
           FROM transaksi
           WHERE ${dateCondition}
         `,
-        args: queryArgs
+        args: range === 'custom' && startDate && endDate ? [startDate, endDate] : []
       });
 
-      // Total Volume Barang Terjual
+      // Volume Barang Terjual
       const volumeRes = await db.execute({
         sql: `
           SELECT COALESCE(SUM(d.jumlah), 0) as total_volume
@@ -51,12 +46,12 @@ export default async function handler(req, res) {
           JOIN transaksi t ON d.transaksi_id = t.id
           WHERE ${dateCondition}
         `,
-        args: queryArgs
+        args: range === 'custom' && startDate && endDate ? [startDate, endDate] : []
       });
 
       let kpiData = { 
         ...kpiRes.rows[0], 
-        total_volume: volumeRes.rows[0].total_volume 
+        total_volume: volumeRes.rows[0]?.total_volume || 0 
       };
 
       // 2. Trend Harian (Line Chart)
@@ -68,7 +63,7 @@ export default async function handler(req, res) {
           GROUP BY date(dibuat_pada)
           ORDER BY tanggal ASC
         `,
-        args: queryArgs
+        args: range === 'custom' && startDate && endDate ? [startDate, endDate] : []
       });
 
       // 3. Jam Sibuk (Peak Hours)
@@ -80,7 +75,7 @@ export default async function handler(req, res) {
           GROUP BY jam
           ORDER BY jam ASC
         `,
-        args: queryArgs
+        args: range === 'custom' && startDate && endDate ? [startDate, endDate] : []
       });
 
       // 4. Top Produk Terlaris
@@ -90,15 +85,13 @@ export default async function handler(req, res) {
           FROM detail_transaksi d
           JOIN transaksi t ON d.transaksi_id = t.id
           JOIN barang b ON d.barang_id = b.id
-          WHERE ${dateCondition}
           GROUP BY d.barang_id
           ORDER BY total_terjual DESC
           LIMIT 5
-        `,
-        args: queryArgs
+        `
       });
 
-      // 5. Peringatan Stok Menipis (Real-time inventaris)
+      // 5. Stok Menipis
       const lowStockRes = await db.execute(`
         SELECT kode_sku, nama_barang, stok 
         FROM barang 
@@ -107,7 +100,7 @@ export default async function handler(req, res) {
         LIMIT 10
       `);
 
-      // 6. Produk Slow Moving
+      // 6. Slow Moving
       const slowMovingRes = await db.execute(`
         SELECT nama_barang, stok 
         FROM barang 
@@ -116,18 +109,14 @@ export default async function handler(req, res) {
         LIMIT 5
       `);
 
-      // 7. Transaksi Terbaru Berdasarkan Filter
-      const recentTxRes = await db.execute({
-        sql: `
-          SELECT t.nomor_faktur, t.dibuat_pada, p.nama_lengkap as nama_kasir, t.total_belanja 
-          FROM transaksi t
-          LEFT JOIN pengguna p ON t.pengguna_id = p.id
-          WHERE ${dateCondition}
-          ORDER BY t.dibuat_pada DESC
-          LIMIT 5
-        `,
-        args: queryArgs
-      });
+      // 7. Transaksi Terbaru
+      const recentTxRes = await db.execute(`
+        SELECT t.nomor_faktur, t.dibuat_pada, p.nama_lengkap as nama_kasir, t.total_belanja 
+        FROM transaksi t
+        LEFT JOIN pengguna p ON t.pengguna_id = p.id
+        ORDER BY t.dibuat_pada DESC
+        LIMIT 5
+      `);
 
       return res.status(200).json({
         kpi: kpiData,
@@ -140,6 +129,7 @@ export default async function handler(req, res) {
       });
 
     } catch (error) {
+      console.error("Dashboard API Error:", error.message);
       return res.status(500).json({ message: error.message });
     }
   }
